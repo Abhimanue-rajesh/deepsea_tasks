@@ -2,17 +2,21 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+from core.settings.unfold import UNFOLD  # noqa: F401
 
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = os.getenv("DEBUG", default=False)
 
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
+    "unfold.contrib.inlines",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -23,13 +27,10 @@ INSTALLED_APPS = [
 
 # Add External Apps Here
 EXTERNAL_APPS = [
-    "accounts.apps.AccountsConfig",  # Example - Need to Remove
+    "tasks.apps.TasksConfig",
 ]
 
 INSTALLED_APPS += EXTERNAL_APPS
-
-LOGIN_REDIRECT_URL = "home"
-LOGOUT_REDIRECT_URL = "home"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -60,7 +61,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
