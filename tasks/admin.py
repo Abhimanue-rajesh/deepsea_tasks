@@ -1,9 +1,9 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 from unfold.admin import ModelAdmin, StackedInline
 from unfold.decorators import display
 
-from .models import Task, TaskCategory, TaskActionStep
-from django.contrib.auth.models import Group
+from .models import Task, TaskActionStep, TaskCategory
 
 admin.site.unregister(Group)
 

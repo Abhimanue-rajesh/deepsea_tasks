@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tasks', '0003_delete_taskactivity'),
+        ("tasks", "0003_delete_taskactivity"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='taskactionstep',
-            name='completed_at',
+            model_name="taskactionstep",
+            name="completed_at",
             field=models.DateField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='taskactionstep',
-            name='started_at',
+            model_name="taskactionstep",
+            name="started_at",
             field=models.DateField(blank=True, null=True),
         ),
     ]

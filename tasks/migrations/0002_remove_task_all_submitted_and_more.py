@@ -7,21 +7,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tasks', '0001_initial'),
+        ("tasks", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='task',
-            name='all_submitted',
+            model_name="task",
+            name="all_submitted",
         ),
         migrations.RemoveField(
-            model_name='task',
-            name='approval_status',
+            model_name="task",
+            name="approval_status",
         ),
         migrations.AlterField(
-            model_name='task',
-            name='due_date',
+            model_name="task",
+            name="due_date",
             field=models.DateField(default=django.utils.timezone.localdate),
         ),
     ]

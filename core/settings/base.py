@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+
 from core.settings.unfold import UNFOLD  # noqa: F401
 
 load_dotenv()

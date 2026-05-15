@@ -16,60 +16,160 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='TaskCategory',
+            name="TaskCategory",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='Task',
+            name="Task",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('description', models.TextField()),
-                ('status', models.CharField(choices=[('not_started', 'Not Started'), ('in_progress', 'In Progress'), ('terminated', 'Terminated'), ('waiting_for_approval', 'Waiting For Approval'), ('completed', 'Completed'), ('closed', 'Closed')], default='not_started', max_length=27)),
-                ('priority', models.CharField(choices=[('critical', 'Critical'), ('high', 'High'), ('medium', 'Medium'), ('low', 'Low')], max_length=27)),
-                ('created_at', models.DateField(auto_now_add=True)),
-                ('updated_date', models.DateField(auto_now=True)),
-                ('due_date', models.DateField(default=django.utils.timezone.now)),
-                ('all_submitted', models.BooleanField(default=False)),
-                ('submitted_date', models.DateTimeField(blank=True, null=True)),
-                ('approval_status', models.BooleanField(default=False)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='tasks.taskcategory')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("description", models.TextField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("not_started", "Not Started"),
+                            ("in_progress", "In Progress"),
+                            ("terminated", "Terminated"),
+                            ("waiting_for_approval", "Waiting For Approval"),
+                            ("completed", "Completed"),
+                            ("closed", "Closed"),
+                        ],
+                        default="not_started",
+                        max_length=27,
+                    ),
+                ),
+                (
+                    "priority",
+                    models.CharField(
+                        choices=[
+                            ("critical", "Critical"),
+                            ("high", "High"),
+                            ("medium", "Medium"),
+                            ("low", "Low"),
+                        ],
+                        max_length=27,
+                    ),
+                ),
+                ("created_at", models.DateField(auto_now_add=True)),
+                ("updated_date", models.DateField(auto_now=True)),
+                ("due_date", models.DateField(default=django.utils.timezone.now)),
+                ("all_submitted", models.BooleanField(default=False)),
+                ("submitted_date", models.DateTimeField(blank=True, null=True)),
+                ("approval_status", models.BooleanField(default=False)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="tasks.taskcategory",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['created_at'],
-                'permissions': [('can_view_approved_tasks', 'Can View Approved Tasks'), ('can_view_submitted_tasks', 'Can View Submitted Tasks')],
+                "ordering": ["created_at"],
+                "permissions": [
+                    ("can_view_approved_tasks", "Can View Approved Tasks"),
+                    ("can_view_submitted_tasks", "Can View Submitted Tasks"),
+                ],
             },
         ),
         migrations.CreateModel(
-            name='TaskActionStep',
+            name="TaskActionStep",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('details', models.TextField(blank=True)),
-                ('order', models.PositiveIntegerField(default=0)),
-                ('status', models.CharField(choices=[('pending', 'Pending'), ('in_progress', 'In Progress'), ('blocked', 'Blocked'), ('completed', 'Completed')], default='pending', max_length=20)),
-                ('assigned_to', models.CharField(max_length=200)),
-                ('due_date', models.DateField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('started_at', models.DateTimeField(blank=True, null=True)),
-                ('completed_at', models.DateTimeField(blank=True, null=True)),
-                ('task', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='action_steps', to='tasks.task')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("details", models.TextField(blank=True)),
+                ("order", models.PositiveIntegerField(default=0)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "Pending"),
+                            ("in_progress", "In Progress"),
+                            ("blocked", "Blocked"),
+                            ("completed", "Completed"),
+                        ],
+                        default="pending",
+                        max_length=20,
+                    ),
+                ),
+                ("assigned_to", models.CharField(max_length=200)),
+                ("due_date", models.DateField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("started_at", models.DateTimeField(blank=True, null=True)),
+                ("completed_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "task",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="action_steps",
+                        to="tasks.task",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['order', 'due_date', 'id'],
+                "ordering": ["order", "due_date", "id"],
             },
         ),
         migrations.CreateModel(
-            name='TaskActivity',
+            name="TaskActivity",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('description', models.TextField()),
-                ('timestamp', models.DateTimeField(default=django.utils.timezone.now)),
-                ('task', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='activities', to='tasks.task')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("description", models.TextField()),
+                ("timestamp", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "task",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="activities",
+                        to="tasks.task",
+                    ),
+                ),
             ],
         ),
     ]

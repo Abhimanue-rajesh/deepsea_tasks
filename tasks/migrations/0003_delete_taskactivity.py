@@ -6,11 +6,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tasks', '0002_remove_task_all_submitted_and_more'),
+        ("tasks", "0002_remove_task_all_submitted_and_more"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='TaskActivity',
+            name="TaskActivity",
         ),
     ]
