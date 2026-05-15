@@ -29,6 +29,7 @@ INSTALLED_APPS = [
 # Add External Apps Here
 EXTERNAL_APPS = [
     "tasks.apps.TasksConfig",
+    "tickets.apps.TicketsConfig",
 ]
 
 INSTALLED_APPS += EXTERNAL_APPS

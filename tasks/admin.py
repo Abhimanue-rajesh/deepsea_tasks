@@ -25,7 +25,6 @@ class TaskActionStepInline(StackedInline):
 class TaskAdmin(ModelAdmin):
     list_display = (
         "title",
-        "user",
         "status_badge",
         "priority_badge",
         "category",
@@ -41,10 +40,8 @@ class TaskAdmin(ModelAdmin):
     search_fields = (
         "title",
         "description",
-        "user__username",
-        "user__email",
     )
-    autocomplete_fields = ("user", "category")
+    autocomplete_fields = ("category",)
     readonly_fields = (
         "created_at",
         "updated_date",
@@ -61,10 +58,10 @@ class TaskAdmin(ModelAdmin):
             "Task Details",
             {
                 "fields": (
-                    "user",
                     "title",
                     "description",
                     "category",
+                    "priority",
                 )
             },
         ),
@@ -107,6 +104,12 @@ class TaskAdmin(ModelAdmin):
     )
     def priority_badge(self, obj):
         return obj.priority
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.user = request.user
+
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(TaskCategory)
