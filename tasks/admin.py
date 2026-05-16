@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.shortcuts import redirect
+from django.urls import reverse
 from unfold.admin import ModelAdmin, StackedInline
 from unfold.decorators import display
 
@@ -25,11 +27,11 @@ class TaskActionStepInline(StackedInline):
 class TaskAdmin(ModelAdmin):
     list_display = (
         "title",
-        "status_badge",
         "priority_badge",
         "category",
         "due_date",
         "days_left",
+        "status",
     )
     list_filter = (
         "status",
@@ -41,6 +43,7 @@ class TaskAdmin(ModelAdmin):
         "title",
         "description",
     )
+    list_editable = ("status",)
     autocomplete_fields = ("category",)
     readonly_fields = (
         "created_at",
@@ -62,6 +65,7 @@ class TaskAdmin(ModelAdmin):
                     "description",
                     "category",
                     "priority",
+                    "status",
                 )
             },
         ),
@@ -79,19 +83,8 @@ class TaskAdmin(ModelAdmin):
         ),
     )
 
-    @display(
-        description="Status",
-        label={
-            "not_started": "info",
-            "in_progress": "warning",
-            "terminated": "danger",
-            "waiting_for_approval": "warning",
-            "completed": "success",
-            "closed": "success",
-        },
-    )
-    def status_badge(self, obj):
-        return obj.status
+    class Media:
+        js = ("js/task_autosave.js",)
 
     @display(
         description="Priority",
@@ -110,6 +103,12 @@ class TaskAdmin(ModelAdmin):
             obj.user = request.user
 
         super().save_model(request, obj, form, change)
+
+    def response_add(self, request, obj, post_url_continue=None):
+        return redirect(reverse("admin:tasks_task_change", args=[obj.pk]))
+
+    def response_change(self, request, obj):
+        return redirect(reverse("admin:tasks_task_change", args=[obj.pk]))
 
 
 @admin.register(TaskCategory)
