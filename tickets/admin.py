@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django.shortcuts import redirect
 from unfold.admin import ModelAdmin
 
-from .models import SupportTicket, TicketRouting, TicketStatus
+from tickets.models import SupportTicket, TicketRouting, TicketStatus
 
 
 @admin.register(SupportTicket)
@@ -78,7 +78,7 @@ class SupportTicketAdmin(ModelAdmin):
                 ticket_name=request.POST.get("ticket_name"),
                 routing_id=request.POST.get("routing") or None,
                 completion_status_id=request.POST.get("completion_status") or None,
-                raised_by=request.POST.get("raised_by") or "Me",
+                raised_by=request.POST.get("raised_by") or "Not Recorded",
             )
 
             messages.success(request, "Support ticket created successfully.")
@@ -97,10 +97,19 @@ class SupportTicketAdmin(ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
 
-        if request.user.is_superuser:
+        if not request.user.is_superuser:
+            qs = qs.filter(user=request.user)
+
+        # Show closed tickets only when searched or filtered
+        is_searching = bool(request.GET.get("q"))
+        is_filtering = any(
+            key for key in request.GET.keys() if key not in ["q", "p", "o", "e"]
+        )
+
+        if is_searching or is_filtering:
             return qs
 
-        return qs.filter(user=request.user)
+        return qs.exclude(completion_status__name__iexact="Closed")
 
 
 @admin.register(TicketRouting)
