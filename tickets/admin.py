@@ -17,34 +17,32 @@ class SupportTicketAdmin(ModelAdmin):
         "raised_by",
         "last_updated_date",
     )
-
     list_filter = (
         "routing",
         "completion_status",
         "last_updated_date",
         "created_at",
     )
-
+    list_editable = (
+        "routing",
+        "completion_status",
+    )
     search_fields = (
         "ticket_number",
         "ticket_name",
         "status_note",
         "raised_by",
     )
-
     autocomplete_fields = (
         "routing",
         "completion_status",
         "related_ticket",
     )
-
     readonly_fields = ("created_at",)
-
     ordering = (
         "-last_updated_date",
         "-ticket_number",
     )
-
     fieldsets = (
         (
             "Ticket Details",
@@ -69,6 +67,10 @@ class SupportTicketAdmin(ModelAdmin):
             },
         ),
     )
+
+    class Media:
+        css = {"all": ("css/ticket_admin.css",)}
+        js = ("js/ticket_autosave.js",)
 
     def changelist_view(self, request, extra_context=None):
         if request.method == "POST" and request.POST.get("_quick_add_ticket"):

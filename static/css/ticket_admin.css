@@ -1,0 +1,29 @@
+/* Completion status width */
+td.field-completion_status .select2-container {
+    width: 50px !important;
+    min-width: 220px !important;
+}
+
+/* Routing width */
+td.field-routing .select2-container {
+    width: 30px !important;
+    min-width: 130px !important;
+}
+
+/* Actual visible select box */
+td.field-completion_status .select2-selection,
+td.field-routing .select2-selection {
+    min-height: 20px !important;
+}
+
+td.field-routing [x-data*="openRelatedWidgetWrapper"],
+td.field-completion_status [x-data*="openRelatedWidgetWrapper"],
+td.field-routing [id^="related-widget-wrapper-form"],
+td.field-completion_status [id^="related-widget-wrapper-form"] {
+    display: none !important;
+}
+
+td.field-routing .select2-selection__clear,
+td.field-completion_status .select2-selection__clear {
+    display: none !important;
+}
