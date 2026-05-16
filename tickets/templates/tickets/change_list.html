@@ -32,7 +32,7 @@
             </div>
             <div>
                 <label class="mb-2 block text-sm font-medium text-font-important-light dark:text-font-important-dark">Status</label>
-                <select name="completion_status"
+                <select name="status"
                         class="w-full rounded border border-base-200 bg-white px-3 py-2 text-sm dark:border-base-700 dark:bg-base-900">
                     <option value="">---------</option>
                     {% for status in ticket_statuses %}<option value="{{ status.id }}">{{ status.name }}</option>{% endfor %}

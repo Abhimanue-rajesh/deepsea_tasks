@@ -8,24 +8,23 @@ from tickets.models import SupportTicket, TicketRouting, TicketStatus
 @admin.register(SupportTicket)
 class SupportTicketAdmin(ModelAdmin):
     change_list_template = "tickets/change_list.html"
-
     list_display = (
         "ticket_number",
         "ticket_name",
         "routing",
-        "completion_status",
+        "status",
         "raised_by",
-        "last_updated_date",
+        "updated_on",
+        "created_on",
     )
     list_filter = (
         "routing",
-        "completion_status",
-        "last_updated_date",
+        "status",
         "created_at",
     )
     list_editable = (
         "routing",
-        "completion_status",
+        "status",
     )
     search_fields = (
         "ticket_number",
@@ -35,14 +34,11 @@ class SupportTicketAdmin(ModelAdmin):
     )
     autocomplete_fields = (
         "routing",
-        "completion_status",
+        "status",
         "related_ticket",
     )
     readonly_fields = ("created_at",)
-    ordering = (
-        "-last_updated_date",
-        "-ticket_number",
-    )
+    ordering = ("-ticket_number",)
     fieldsets = (
         (
             "Ticket Details",
@@ -51,7 +47,7 @@ class SupportTicketAdmin(ModelAdmin):
                     "ticket_number",
                     "ticket_name",
                     "routing",
-                    "completion_status",
+                    "status",
                     "raised_by",
                 )
             },
@@ -63,10 +59,19 @@ class SupportTicketAdmin(ModelAdmin):
                     "last_updated_date",
                     "status_note",
                     "related_ticket",
+                    "created_at",
                 )
             },
         ),
     )
+
+    @admin.display(description="Updated")
+    def updated_on(self, obj):
+        return obj.last_updated_date
+
+    @admin.display(description="Created")
+    def created_on(self, obj):
+        return obj.created_at
 
     class Media:
         css = {"all": ("css/ticket_admin.css",)}
@@ -79,7 +84,7 @@ class SupportTicketAdmin(ModelAdmin):
                 ticket_number=request.POST.get("ticket_number") or None,
                 ticket_name=request.POST.get("ticket_name"),
                 routing_id=request.POST.get("routing") or None,
-                completion_status_id=request.POST.get("completion_status") or None,
+                status_id=request.POST.get("status") or None,
                 raised_by=request.POST.get("raised_by") or "Not Recorded",
             )
 
@@ -111,7 +116,7 @@ class SupportTicketAdmin(ModelAdmin):
         if is_searching or is_filtering:
             return qs
 
-        return qs.exclude(completion_status__name__iexact="Closed")
+        return qs.exclude(status__name__iexact="Closed")
 
 
 @admin.register(TicketRouting)

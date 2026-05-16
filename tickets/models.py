@@ -46,7 +46,7 @@ class SupportTicket(models.Model):
         related_name="tickets",
     )
 
-    completion_status = models.ForeignKey(
+    status = models.ForeignKey(
         TicketStatus,
         on_delete=models.SET_NULL,
         null=True,
@@ -90,3 +90,7 @@ class SupportTicket(models.Model):
     def mark_updated(self):
         self.last_updated_date = timezone.localdate()
         self.save()
+
+    def save(self, *args, **kwargs):
+        self.last_updated_date = timezone.localdate()
+        super().save(*args, **kwargs)

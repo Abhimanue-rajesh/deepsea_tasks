@@ -1,13 +1,13 @@
 /* Completion status width */
 td.field-completion_status .select2-container {
-    width: 50px !important;
-    min-width: 220px !important;
+    width: 120px !important;
+    min-width: 200px !important;
 }
 
 /* Routing width */
 td.field-routing .select2-container {
-    width: 30px !important;
-    min-width: 130px !important;
+    width: 100px !important;
+    min-width: 100px !important;
 }
 
 /* Actual visible select box */
@@ -16,6 +16,7 @@ td.field-routing .select2-selection {
     min-height: 20px !important;
 }
 
+/* Hide related action buttons */
 td.field-routing [x-data*="openRelatedWidgetWrapper"],
 td.field-completion_status [x-data*="openRelatedWidgetWrapper"],
 td.field-routing [id^="related-widget-wrapper-form"],
@@ -23,7 +24,80 @@ td.field-completion_status [id^="related-widget-wrapper-form"] {
     display: none !important;
 }
 
+/* Hide clear X button */
 td.field-routing .select2-selection__clear,
 td.field-completion_status .select2-selection__clear {
     display: none !important;
+}
+
+/* Allow ticket name to wrap */
+td.field-ticket_name {
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    height: auto !important;
+    min-height: 45px !important;
+    overflow: visible !important;
+    align-items: flex-start !important;
+}
+
+/* Remove fixed row height */
+#result_list td,
+#result_list th.field-ticket_number {
+    height: auto !important;
+}
+
+/* Align cells to top */
+#result_list td,
+#result_list th {
+    vertical-align: top !important;
+}
+
+/* Better row spacing */
+td.field-ticket_name,
+td.field-routing,
+td.field-completion_status {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+/* Fix ticket number column header + body */
+th.column-ticket_number,
+th.field-ticket_number {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+    padding-right: 15px !important;
+}
+
+/* Ticket number body cell */
+th.field-ticket_number {
+    flex: 0 0 120px !important;
+}
+
+/* Header inner content */
+th.column-ticket_number .flex {
+    width: 120px !important;
+    min-width: 120px !important;
+    overflow: visible !important;
+}
+
+/* Keep ticket name away from ticket number */
+th.column-ticket_name,
+td.field-ticket_name {
+    padding-left: 20px !important;
+}
+
+/* Last updated date column width */
+th.column-last_updated_date,
+td.field-last_updated_date {
+    width: 140px !important;
+    min-width: 140px !important;
+    max-width: 140px !important;
+}
+
+/* Prevent flex resizing */
+td.field-last_updated_date,
+th.column-last_updated_date {
+    flex: 0 0 140px !important;
 }
