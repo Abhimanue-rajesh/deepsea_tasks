@@ -10,6 +10,10 @@ class TaskCategory(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "Task Category"
+        verbose_name_plural = "Task Categories"
+
 
 class Task(models.Model):
     PRIORITY = [

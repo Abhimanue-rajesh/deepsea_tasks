@@ -9,13 +9,13 @@ from tickets.models import SupportTicket, TicketRouting, TicketStatus
 class SupportTicketAdmin(ModelAdmin):
     change_list_template = "tickets/change_list.html"
     list_display = (
+        "created_on",
         "ticket_number",
         "ticket_name",
         "routing",
         "status",
         "raised_by",
         "updated_on",
-        "created_on",
     )
     list_filter = (
         "routing",
@@ -38,7 +38,7 @@ class SupportTicketAdmin(ModelAdmin):
         "related_ticket",
     )
     readonly_fields = ("created_at",)
-    ordering = ("-ticket_number",)
+    ordering = ("-created_at",)
     fieldsets = (
         (
             "Ticket Details",
@@ -75,7 +75,6 @@ class SupportTicketAdmin(ModelAdmin):
 
     class Media:
         css = {"all": ("css/ticket_admin.css",)}
-        js = ("js/ticket_autosave.js",)
 
     def changelist_view(self, request, extra_context=None):
         if request.method == "POST" and request.POST.get("_quick_add_ticket"):
@@ -102,21 +101,13 @@ class SupportTicketAdmin(ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request)
+        queryset = super().get_queryset(request)
+        # If status filter is selected, allow Django filter to work normally
+        if "status__id__exact" in request.GET:
+            return queryset
 
-        if not request.user.is_superuser:
-            qs = qs.filter(user=request.user)
-
-        # Show closed tickets only when searched or filtered
-        is_searching = bool(request.GET.get("q"))
-        is_filtering = any(
-            key for key in request.GET.keys() if key not in ["q", "p", "o", "e"]
-        )
-
-        if is_searching or is_filtering:
-            return qs
-
-        return qs.exclude(status__name__iexact="Closed")
+        # Default view: hide closed tickets
+        return queryset.exclude(status__name__iexact="Closed")
 
 
 @admin.register(TicketRouting)

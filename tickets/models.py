@@ -8,6 +8,7 @@ class TicketRouting(models.Model):
 
     class Meta:
         ordering = ["name"]
+        verbose_name_plural = "Ticket Routings"
 
     def __str__(self):
         return self.name
@@ -18,6 +19,8 @@ class TicketStatus(models.Model):
 
     class Meta:
         ordering = ["name"]
+        verbose_name = "Ticket Status"
+        verbose_name_plural = "Ticket Statuses"
 
     def __str__(self):
         return self.name
@@ -29,15 +32,12 @@ class SupportTicket(models.Model):
         on_delete=models.CASCADE,
         related_name="support_tickets",
     )
-
     ticket_number = models.PositiveIntegerField(
         null=True,
         blank=True,
         unique=True,
     )
-
     ticket_name = models.CharField(max_length=255)
-
     routing = models.ForeignKey(
         TicketRouting,
         on_delete=models.SET_NULL,
@@ -45,7 +45,6 @@ class SupportTicket(models.Model):
         blank=True,
         related_name="tickets",
     )
-
     status = models.ForeignKey(
         TicketStatus,
         on_delete=models.SET_NULL,
@@ -53,19 +52,15 @@ class SupportTicket(models.Model):
         blank=True,
         related_name="tickets",
     )
-
     last_updated_date = models.DateField(
         null=True,
         blank=True,
     )
-
     status_note = models.TextField(blank=True)
-
     raised_by = models.CharField(
         max_length=100,
         blank=True,
     )
-
     related_ticket = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,
@@ -73,7 +68,6 @@ class SupportTicket(models.Model):
         blank=True,
         related_name="related_tickets",
     )
-
     created_at = models.DateField(auto_now_add=True)
 
     class Meta:
@@ -81,6 +75,7 @@ class SupportTicket(models.Model):
             "-last_updated_date",
             "-ticket_number",
         ]
+        verbose_name_plural = "Support Tickets"
 
     def __str__(self):
         if self.ticket_number:
