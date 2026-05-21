@@ -1,4 +1,6 @@
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
+
+# from django.urls import reverse, reverse_lazy
 
 UNFOLD = {
     "SITE_TITLE": "Task Management",
@@ -67,6 +69,13 @@ UNFOLD = {
                         ),
                     },
                     {
+                        "title": ("Domain Registrars"),
+                        "icon": "dns",
+                        "link": reverse_lazy(
+                            "admin:web_management_registrar_changelist"
+                        ),
+                    },
+                    {
                         "title": ("Web Pages"),
                         "icon": "web",
                         "link": reverse_lazy(
@@ -82,21 +91,21 @@ UNFOLD = {
                     },
                 ],
             },
-            {
-                "title": ("Account"),
-                "collapsible": False,
-                "separator": True,
-                "items": [
-                    {
-                        "title": ("My Profile"),
-                        "icon": "person",
-                        "link": lambda request: reverse(
-                            "admin:auth_user_change",
-                            args=[request.user.id],
-                        ),
-                    },
-                ],
-            },
+            # {
+            #     "title": ("Account"),
+            #     "collapsible": False,
+            #     "separator": True,
+            #     "items": [
+            #         {
+            #             "title": ("My Profile"),
+            #             "icon": "person",
+            #             "link": lambda request: reverse(
+            #                 "admin:auth_user_change",
+            #                 args=[request.user.id],
+            #             ),
+            #         },
+            #     ],
+            # },
         ],
     },
 }

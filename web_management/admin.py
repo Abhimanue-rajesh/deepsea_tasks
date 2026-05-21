@@ -1,7 +1,7 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin, StackedInline
 
-from .models import DomainManager, WebFormManager, WebPageManager
+from .models import DomainManager, Registrar, WebFormManager, WebPageManager
 
 
 class WebPageInline(StackedInline):
@@ -12,6 +12,18 @@ class WebPageInline(StackedInline):
 class WebFormInline(StackedInline):
     model = WebFormManager
     extra = 0
+
+
+@admin.register(Registrar)
+class RegistrarAdmin(ModelAdmin):
+    list_display = (
+        "name",
+        "website",
+    )
+    search_fields = (
+        "name",
+        "website",
+    )
 
 
 @admin.register(DomainManager)
