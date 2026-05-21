@@ -78,9 +78,10 @@ class SupportTicketAdmin(ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         if request.method == "POST" and request.POST.get("_quick_add_ticket"):
+            ticket_number = request.POST.get("ticket_number")
             SupportTicket.objects.create(
                 user=request.user,
-                ticket_number=request.POST.get("ticket_number") or None,
+                ticket_number=ticket_number.strip() if ticket_number else None,
                 ticket_name=request.POST.get("ticket_name"),
                 routing_id=request.POST.get("routing") or None,
                 status_id=request.POST.get("status") or None,
