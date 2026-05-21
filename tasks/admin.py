@@ -5,7 +5,7 @@ from django.urls import reverse
 from unfold.admin import ModelAdmin, StackedInline
 from unfold.decorators import display
 
-from .models import Task, TaskActionStep, TaskCategory
+from .models import Task, TaskActionStep, TaskActivity, TaskCategory
 
 admin.site.unregister(Group)
 
@@ -23,15 +23,21 @@ class TaskActionStepInline(StackedInline):
     )
 
 
+class TaskActivityAdmin(StackedInline):
+    model = TaskActivity
+    extra = 0
+
+
 @admin.register(Task)
 class TaskAdmin(ModelAdmin):
     list_display = (
         "title",
-        "priority_badge",
-        "category",
-        "due_date",
-        "days_left",
+        "priority",
         "status",
+        "last_activity_display",
+        "last_activity_date_display",
+        "due_date",
+        "pending_with",
     )
     list_filter = (
         "status",
@@ -53,7 +59,10 @@ class TaskAdmin(ModelAdmin):
         "is_overdue",
         "deadline",
     )
-    inlines = [TaskActionStepInline]
+    inlines = [
+        TaskActivityAdmin,
+        TaskActionStepInline,
+    ]
     ordering = ("created_at",)
 
     fieldsets = (
@@ -66,6 +75,7 @@ class TaskAdmin(ModelAdmin):
                     "category",
                     "priority",
                     "status",
+                    "pending_with",
                 )
             },
         ),
@@ -110,6 +120,29 @@ class TaskAdmin(ModelAdmin):
 
     def response_change(self, request, obj):
         return redirect(reverse("admin:tasks_task_change", args=[obj.pk]))
+
+    @admin.display(description="Last Activity")
+    def last_activity_display(self, obj):
+        activity = obj.last_activity()
+
+        if not activity:
+            return "-"
+
+        return activity.activity_note
+
+    @admin.display(description="Last Activity Date")
+    def last_activity_date_display(self, obj):
+        return obj.last_activity_date() or "-"
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+
+        # If status filter is selected, allow Django filter to work normally
+        if "status__exact" in request.GET:
+            return queryset
+
+        # Default view: hide closed tasks
+        return queryset.exclude(status="closed")
 
 
 @admin.register(TaskCategory)

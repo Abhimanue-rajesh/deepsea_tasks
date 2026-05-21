@@ -37,6 +37,11 @@ class Task(models.Model):
     description = models.TextField()
     status = models.CharField(max_length=27, choices=STATUS, default="not_started")
     priority = models.CharField(max_length=27, choices=PRIORITY)
+    pending_with = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+    )
 
     category = models.ForeignKey(
         TaskCategory, on_delete=models.SET_NULL, null=True, blank=True
@@ -49,10 +54,6 @@ class Task(models.Model):
     submitted_date = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        permissions = [
-            ("can_view_approved_tasks", "Can View Approved Tasks"),
-            ("can_view_submitted_tasks", "Can View Submitted Tasks"),
-        ]
         ordering = ["created_at"]
 
     def __str__(self):
@@ -103,17 +104,27 @@ class Task(models.Model):
             return "Due in 1 day"
         return f"Due in {days} days"
 
+    def last_activity(self):
+        return self.activities.order_by("-activity_date", "-created_at").first()
+
+    def last_activity_date(self):
+        activity = self.last_activity()
+        return activity.activity_date if activity else None
+
+    def days_since_last_activity(self):
+        last_date = self.last_activity_date()
+
+        if not last_date:
+            return None
+
+        return (timezone.localdate() - last_date).days
+
+    def needs_activity_update(self):
+        days = self.days_since_last_activity()
+        return days is not None and days > 2
+
 
 class TaskActionStep(models.Model):
-    """
-    A detailed action plan step for a Task.
-
-    Example usage:
-    - “Create draft PPT”
-    - “Get approval from manager”
-    - “Share with Insight team”
-    """
-
     STATUS = [
         ("pending", "Pending"),
         ("in_progress", "In Progress"),
@@ -153,3 +164,23 @@ class TaskActionStep(models.Model):
         self.status = "completed"
         self.completed_at = timezone.now()
         self.save()
+
+
+class TaskActivity(models.Model):
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name="activities",
+    )
+    activity_note = models.CharField(max_length=255)
+    activity_date = models.DateField(default=localdate)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-activity_date", "-created_at"]
+        verbose_name = "Task Activity"
+        verbose_name_plural = "Task Activities"
+
+    def __str__(self):
+        return f"{self.task.title} - {self.activity_note}"
