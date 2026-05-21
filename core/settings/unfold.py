@@ -55,6 +55,34 @@ UNFOLD = {
                 ],
             },
             {
+                "title": ("Web Management"),
+                "collapsible": False,
+                "separator": True,
+                "items": [
+                    {
+                        "title": ("Domains"),
+                        "icon": "language",
+                        "link": reverse_lazy(
+                            "admin:web_management_domainmanager_changelist"
+                        ),
+                    },
+                    {
+                        "title": ("Web Pages"),
+                        "icon": "web",
+                        "link": reverse_lazy(
+                            "admin:web_management_webpagemanager_changelist"
+                        ),
+                    },
+                    {
+                        "title": ("Web Forms"),
+                        "icon": "description",
+                        "link": reverse_lazy(
+                            "admin:web_management_webformmanager_changelist"
+                        ),
+                    },
+                ],
+            },
+            {
                 "title": ("Account"),
                 "collapsible": False,
                 "separator": True,

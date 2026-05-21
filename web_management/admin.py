@@ -1,0 +1,57 @@
+from django.contrib import admin
+from unfold.admin import ModelAdmin, StackedInline
+
+from .models import DomainManager, WebFormManager, WebPageManager
+
+
+class WebPageInline(StackedInline):
+    model = WebPageManager
+    extra = 0
+
+
+class WebFormInline(StackedInline):
+    model = WebFormManager
+    extra = 0
+
+
+@admin.register(DomainManager)
+class DomainManagerAdmin(ModelAdmin):
+    list_display = (
+        "domain_name",
+        "registrar",
+        "expiry_date",
+        "days_until_expiry",
+        "renewal_status",
+        "updated_at",
+    )
+    search_fields = ("domain_name", "registrar")
+    list_filter = ("renewal_status", "expiry_date")
+    inlines = [WebPageInline]
+
+
+@admin.register(WebPageManager)
+class WebPageManagerAdmin(ModelAdmin):
+    list_display = (
+        "page_title",
+        "domain",
+        "page_url",
+        "managed_by",
+        "is_active",
+        "updated_at",
+    )
+    search_fields = ("page_title", "page_url", "managed_by")
+    list_filter = ("domain", "is_active")
+    inlines = [WebFormInline]
+
+
+@admin.register(WebFormManager)
+class WebFormManagerAdmin(ModelAdmin):
+    list_display = (
+        "form_name",
+        "webpage",
+        "submission_receiver",
+        "stores_data",
+        "is_active",
+    )
+    search_fields = ("form_name", "form_purpose", "submission_receiver")
+    list_filter = ("is_active", "stores_data", "webpage")

@@ -30,6 +30,7 @@ INSTALLED_APPS = [
 EXTERNAL_APPS = [
     "tasks.apps.TasksConfig",
     "tickets.apps.TicketsConfig",
+    "web_management.apps.WebManagementConfig",
 ]
 
 INSTALLED_APPS += EXTERNAL_APPS
