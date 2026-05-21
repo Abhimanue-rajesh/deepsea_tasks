@@ -160,4 +160,4 @@ LOGGING = {
     },
 }
 
-TEST_RUNNER = "accounts.tests.CustomTestRunner"
+# TEST_RUNNER = "accounts.tests.CustomTestRunner"

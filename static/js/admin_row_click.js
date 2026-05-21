@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const ignoreSelector =
+        "a, button, input, select, textarea, label, option, svg, " +
+        "[role='button'], [role='combobox'], [role='listbox'], [role='option'], " +
+        ".select2, .select2-container, .select2-selection, " +
+        ".choices, .choices__inner, .choices__list, " +
+        "[data-controller], [data-action]";
+
     document.querySelectorAll("tbody tr").forEach((row) => {
         const link = row.querySelector("th a, td a");
 
@@ -7,10 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
         row.style.cursor = "pointer";
 
         row.addEventListener("click", function (e) {
-            if (
-                e.target.closest("a, button, input, select, textarea, label") ||
-                e.target.closest("[role='button']")
-            ) {
+            if (e.target.closest(ignoreSelector)) {
                 return;
             }
 
