@@ -85,6 +85,7 @@ class TaskAdmin(ModelAdmin):
 
     class Media:
         js = ("js/task_autosave.js",)
+        js = ("js/admin_row_click.js",)
 
     @display(
         description="Priority",
@@ -115,3 +116,6 @@ class TaskAdmin(ModelAdmin):
 class TaskCategoryAdmin(ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
+
+    class Media:
+        js = ("js/admin_row_click.js",)

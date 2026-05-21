@@ -75,6 +75,7 @@ class SupportTicketAdmin(ModelAdmin):
 
     class Media:
         css = {"all": ("css/ticket_admin.css",)}
+        js = ("js/admin_row_click.js",)
 
     def changelist_view(self, request, extra_context=None):
         if request.method == "POST" and request.POST.get("_quick_add_ticket"):
@@ -99,6 +100,7 @@ class SupportTicketAdmin(ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         obj.user = request.user
+        obj.ticket_number = obj.ticket_number.strip() if obj.ticket_number else None
         super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):
@@ -117,9 +119,15 @@ class TicketRoutingAdmin(ModelAdmin):
     search_fields = ("name",)
     ordering = ("name",)
 
+    class Media:
+        js = ("js/admin_row_click.js",)
+
 
 @admin.register(TicketStatus)
 class TicketStatusAdmin(ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
+
+    class Media:
+        js = ("js/admin_row_click.js",)

@@ -28,6 +28,9 @@ class DomainManagerAdmin(ModelAdmin):
     list_filter = ("renewal_status", "expiry_date")
     inlines = [WebPageInline]
 
+    class Media:
+        js = ("js/admin_row_click.js",)
+
 
 @admin.register(WebPageManager)
 class WebPageManagerAdmin(ModelAdmin):
@@ -43,6 +46,9 @@ class WebPageManagerAdmin(ModelAdmin):
     list_filter = ("domain", "is_active")
     inlines = [WebFormInline]
 
+    class Media:
+        js = ("js/admin_row_click.js",)
+
 
 @admin.register(WebFormManager)
 class WebFormManagerAdmin(ModelAdmin):
@@ -55,3 +61,6 @@ class WebFormManagerAdmin(ModelAdmin):
     )
     search_fields = ("form_name", "form_purpose", "submission_receiver")
     list_filter = ("is_active", "stores_data", "webpage")
+
+    class Media:
+        js = ("js/admin_row_click.js",)
