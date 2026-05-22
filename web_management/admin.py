@@ -1,7 +1,14 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin, StackedInline
 
-from .models import DomainManager, Registrar, WebFormManager, WebPageManager
+from web_management.forms import DNSZoneAdminForm
+from web_management.models import (
+    DNSZone,
+    DomainManager,
+    Registrar,
+    WebFormManager,
+    WebPageManager,
+)
 
 
 class WebPageInline(StackedInline):
@@ -73,6 +80,24 @@ class WebFormManagerAdmin(ModelAdmin):
     )
     search_fields = ("form_name", "form_purpose", "submission_receiver")
     list_filter = ("is_active", "stores_data", "webpage")
+
+    class Media:
+        js = ("js/admin_row_click.js",)
+
+
+@admin.register(DNSZone)
+class DNSZoneAdmin(ModelAdmin):
+    form = DNSZoneAdminForm
+
+    list_display = (
+        "domain",
+        "updated_at",
+    )
+
+    search_fields = (
+        "domain",
+        "dns_records",
+    )
 
     class Media:
         js = ("js/admin_row_click.js",)

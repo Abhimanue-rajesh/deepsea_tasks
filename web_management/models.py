@@ -64,3 +64,14 @@ class WebFormManager(models.Model):
 
     def __str__(self):
         return self.form_name
+
+
+class DNSZone(models.Model):
+    domain = models.CharField(max_length=255)
+    dns_records = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.domain

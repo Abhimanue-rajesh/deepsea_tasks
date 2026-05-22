@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.humanize",
 ]
 
 # Add External Apps Here
@@ -31,6 +32,7 @@ EXTERNAL_APPS = [
     "tasks.apps.TasksConfig",
     "tickets.apps.TicketsConfig",
     "web_management.apps.WebManagementConfig",
+    "dashboard.apps.DashboardConfig",
 ]
 
 INSTALLED_APPS += EXTERNAL_APPS

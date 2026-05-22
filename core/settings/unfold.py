@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 # from django.urls import reverse, reverse_lazy
 
 UNFOLD = {
+    "DASHBOARD_CALLBACK": "dashboard.views.dashboard_callback",
     "SITE_TITLE": "Task Management",
     "SITE_HEADER": "Task Management Admin",
     "SITE_SUBHEADER": "Administration",
@@ -88,6 +89,11 @@ UNFOLD = {
                         "link": reverse_lazy(
                             "admin:web_management_webformmanager_changelist"
                         ),
+                    },
+                    {
+                        "title": ("DNS Zones"),
+                        "icon": "article",
+                        "link": reverse_lazy("admin:web_management_dnszone_changelist"),
                     },
                 ],
             },

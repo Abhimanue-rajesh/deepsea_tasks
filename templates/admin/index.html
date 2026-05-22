@@ -1,0 +1,9 @@
+{% extends "admin/base_site.html" %}
+{% load i18n unfold humanize %}
+{% block title %}
+    {% if subtitle %}{{ subtitle }} |{% endif %}
+    {{ title }} | {{ site_title|default:_("Django site admin") }}
+{% endblock title %}
+{% block content %}
+
+{% endblock content %}
