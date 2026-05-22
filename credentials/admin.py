@@ -1,4 +1,8 @@
 from django.contrib import admin
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
+
+# from django.utils.html import format_html
 from unfold.admin import ModelAdmin
 
 from credentials.models import Credential
@@ -13,6 +17,7 @@ class CredentialAdmin(ModelAdmin):
         "url",
         "has_pem_file",
         "updated_at",
+        "copy_credential",
     )
 
     list_filter = (
@@ -63,3 +68,22 @@ class CredentialAdmin(ModelAdmin):
     @admin.display(description="PEM File")
     def has_pem_file(self, obj):
         return "Yes" if obj.pem_file else "No"
+
+    @admin.display(description="Copy")
+    def copy_credential(self, obj):
+        copy_text = f"""Name: {obj.name or ""}\nUser ID: {obj.user_id or ""}\nEmail: {obj.email or ""}\nPassword: {obj.password or ""}\nURL: {obj.url or ""}"""
+
+        html = render_to_string(
+            "credentials/copy_credential_button.html",
+            {
+                "copy_text": copy_text,
+            },
+        )
+
+        return mark_safe(html)
+
+    class Media:
+        js = (
+            "js/admin_row_click.js",
+            "credentials/js/credential_copy.js",
+        )
