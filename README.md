@@ -128,3 +128,8 @@ docker run --env-files .env --name django-template -d -p 8000:8000 django-templa
 ```bash
 python manage.py test
 ```
+
+## Creating fernet key
+```bash
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```

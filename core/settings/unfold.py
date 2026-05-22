@@ -58,6 +58,18 @@ UNFOLD = {
                 ],
             },
             {
+                "title": ("Credentials"),
+                "collapsible": False,
+                "separator": True,
+                "items": [
+                    {
+                        "title": ("Credentials"),
+                        "icon": "key",
+                        "link": reverse_lazy("admin:credentials_credential_changelist"),
+                    },
+                ],
+            },
+            {
                 "title": ("Web Management"),
                 "collapsible": False,
                 "separator": True,
@@ -77,19 +89,19 @@ UNFOLD = {
                         ),
                     },
                     {
-                        "title": ("Web Pages"),
+                        "title": ("Web Pages and Forms"),
                         "icon": "web",
                         "link": reverse_lazy(
                             "admin:web_management_webpagemanager_changelist"
                         ),
                     },
-                    {
-                        "title": ("Web Forms"),
-                        "icon": "description",
-                        "link": reverse_lazy(
-                            "admin:web_management_webformmanager_changelist"
-                        ),
-                    },
+                    # {
+                    #     "title": ("Web Forms"),
+                    #     "icon": "description",
+                    #     "link": reverse_lazy(
+                    #         "admin:web_management_webformmanager_changelist"
+                    #     ),
+                    # },
                     {
                         "title": ("DNS Zones"),
                         "icon": "article",

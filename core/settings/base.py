@@ -33,6 +33,7 @@ EXTERNAL_APPS = [
     "tickets.apps.TicketsConfig",
     "web_management.apps.WebManagementConfig",
     "dashboard.apps.DashboardConfig",
+    "credentials.apps.CredentialsConfig",
 ]
 
 INSTALLED_APPS += EXTERNAL_APPS
@@ -112,6 +113,7 @@ EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 EMAIL_DEBUG = os.getenv("EMAIL_DEBUG")
 
+FIELD_ENCRYPTION_KEY = os.environ.get("FIELD_ENCRYPTION_KEY")
 
 LOGGING = {
     "version": 1,
