@@ -14,9 +14,8 @@ class CredentialAdmin(ModelAdmin):
         "name",
         "user_id",
         "email",
-        "url",
-        "has_pem_file",
-        "updated_at",
+        "password",
+        "notes",
         "copy_credential",
     )
 

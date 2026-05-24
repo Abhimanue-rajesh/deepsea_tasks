@@ -59,3 +59,14 @@ class Credential(models.Model):
 
         if pem_file:
             pem_file.delete(save=False)
+
+    def clean(self):
+        super().clean()
+
+        if not self.password and not self.pem_file:
+            raise ValidationError(
+                {
+                    "password": "Either password or PEM file is required.",
+                    "pem_file": "Either password or PEM file is required.",
+                }
+            )
