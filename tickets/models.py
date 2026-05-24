@@ -89,3 +89,14 @@ class SupportTicket(models.Model):
     def save(self, *args, **kwargs):
         self.last_updated_date = timezone.localdate()
         super().save(*args, **kwargs)
+
+    def days_since_update(self):
+        if not self.last_updated_date:
+            return None
+
+        return (timezone.localdate() - self.last_updated_date).days
+
+    def needs_update(self):
+        days = self.days_since_update()
+
+        return days is not None and days > 2

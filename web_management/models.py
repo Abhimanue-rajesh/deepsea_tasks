@@ -26,6 +26,22 @@ class DomainManager(models.Model):
     def days_until_expiry(self):
         return (self.expiry_date - timezone.now().date()).days
 
+    def needs_renewal_reminder(self):
+        days = self.days_until_expiry
+
+        return not self.renewal_status and days <= 30
+
+    def renewal_priority(self):
+        days = self.days_until_expiry
+
+        if days <= 10:
+            return "critical"
+
+        if days <= 20:
+            return "warning"
+
+        return "normal"
+
     def __str__(self):
         return self.domain_name
 
@@ -59,11 +75,25 @@ class WebFormManager(models.Model):
     is_active = models.BooleanField(default=True)
     notes = models.TextField(blank=True, null=True)
 
+    last_tested_date = models.DateField(blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.form_name
+
+    def days_since_test(self):
+        if not self.last_tested_date:
+            return None
+
+        return (timezone.localdate() - self.last_tested_date).days
+
+    def needs_testing(self):
+        if not self.last_tested_date:
+            return True
+
+        return self.days_since_test() > 30
 
 
 class DNSZone(models.Model):
