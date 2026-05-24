@@ -2,6 +2,7 @@ from django.contrib import admin, messages
 from django.shortcuts import redirect
 from unfold.admin import ModelAdmin
 
+from quickcopy.models import QuickCopy
 from tickets.models import SupportTicket, TicketRouting, TicketStatus
 
 
@@ -75,7 +76,10 @@ class SupportTicketAdmin(ModelAdmin):
 
     class Media:
         css = {"all": ("css/ticket_admin.css",)}
-        js = ("js/admin_row_click.js",)
+        js = (
+            "js/admin_row_click.js",
+            "quickcopy/js/quickcopy.js",
+        )
 
     def changelist_view(self, request, extra_context=None):
         if request.method == "POST" and request.POST.get("_quick_add_ticket"):
@@ -95,6 +99,10 @@ class SupportTicketAdmin(ModelAdmin):
         extra_context = extra_context or {}
         extra_context["ticket_routings"] = TicketRouting.objects.all()
         extra_context["ticket_statuses"] = TicketStatus.objects.all()
+
+        extra_context["quick_copy_items"] = QuickCopy.objects.filter(
+            related_to_tickets=True
+        ).order_by("title")
 
         return super().changelist_view(request, extra_context=extra_context)
 

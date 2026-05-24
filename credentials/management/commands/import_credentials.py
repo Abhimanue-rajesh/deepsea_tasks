@@ -65,13 +65,15 @@ class Command(BaseCommand):
                 )
                 continue
 
-            credential = Credential(
+            credential, created = Credential.objects.update_or_create(
                 name=name,
-                user_id=user_id,
-                email=email,
-                password=password,
-                url=url,
-                notes=notes,
+                defaults={
+                    "user_id": user_id,
+                    "email": email,
+                    "password": password,
+                    "url": url,
+                    "notes": notes,
+                },
             )
 
             try:

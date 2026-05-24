@@ -70,6 +70,18 @@ UNFOLD = {
                 ],
             },
             {
+                "title": ("Quick Copy"),
+                "collapsible": False,
+                "separator": True,
+                "items": [
+                    {
+                        "title": ("Quick Copy Items"),
+                        "icon": "content_copy",
+                        "link": reverse_lazy("admin:quickcopy_quickcopy_changelist"),
+                    },
+                ],
+            },
+            {
                 "title": ("Web Management"),
                 "collapsible": False,
                 "separator": True,

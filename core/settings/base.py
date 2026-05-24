@@ -34,6 +34,7 @@ EXTERNAL_APPS = [
     "web_management.apps.WebManagementConfig",
     "dashboard.apps.DashboardConfig",
     "credentials.apps.CredentialsConfig",
+    "quickcopy.apps.QuickcopyConfig",
 ]
 
 INSTALLED_APPS += EXTERNAL_APPS
