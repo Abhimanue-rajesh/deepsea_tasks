@@ -83,7 +83,7 @@ UNFOLD = {
             },
             {
                 "title": ("Web Management"),
-                "collapsible": False,
+                "collapsible": True,
                 "separator": True,
                 "items": [
                     {

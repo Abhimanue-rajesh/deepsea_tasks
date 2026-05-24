@@ -58,4 +58,4 @@ class QuickCopyAdmin(ModelAdmin):
         return mark_safe(html)
 
     class Media:
-        js = ("quickcopy/js/quickcopy.js",)
+        js = ("quickcopy/js/quickcopy.js", "js/admin_row_click.js")

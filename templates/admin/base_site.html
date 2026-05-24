@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block title %}
+    Life Tracker Admin
+{% endblock title %}
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock branding %}
+{% block extrahead %}
+    {{ block.super }}
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+    <script src="{% static 'js/apexcharts.min.js' %}"></script>
+    <script defer  src="{% static 'js/main.js' %}"></script>
+{% endblock extrahead %}
