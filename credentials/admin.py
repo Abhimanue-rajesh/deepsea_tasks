@@ -83,6 +83,6 @@ class CredentialAdmin(ModelAdmin):
 
     class Media:
         js = (
-            "js/admin_row_click.js",
+            # "js/admin_row_click.js",
             "credentials/js/credential_copy.js",
         )

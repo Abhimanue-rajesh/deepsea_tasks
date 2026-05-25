@@ -23,7 +23,14 @@ document.addEventListener("DOMContentLoaded", function () {
             event.preventDefault();
             event.stopPropagation();
 
-            const text = this.dataset.copyText || "";
+            const rawText = this.dataset.copyText || "";
+
+            const text = rawText
+                .replace(/\\u000D\\u000A/g, "\n")
+                .replace(/\\r\\n/g, "\n")
+                .replace(/\\n/g, "\n")
+                .replace(/\\u002D/g, "-");
+
             const icon = this.querySelector(".copy-icon");
 
             if (!text || !icon) return;
