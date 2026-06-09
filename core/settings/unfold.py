@@ -45,16 +45,6 @@ UNFOLD = {
                         "icon": "confirmation_number",
                         "link": reverse_lazy("admin:tickets_supportticket_changelist"),
                     },
-                    {
-                        "title": ("Ticket Routing"),
-                        "icon": "route",
-                        "link": reverse_lazy("admin:tickets_ticketrouting_changelist"),
-                    },
-                    {
-                        "title": ("Ticket Status"),
-                        "icon": "flag",
-                        "link": reverse_lazy("admin:tickets_ticketstatus_changelist"),
-                    },
                 ],
             },
             {

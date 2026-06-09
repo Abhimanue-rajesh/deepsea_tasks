@@ -23,10 +23,7 @@ class SupportTicketAdmin(ModelAdmin):
         "status",
         "created_at",
     )
-    list_editable = (
-        "routing",
-        "status",
-    )
+    list_editable = ("status",)
     search_fields = (
         "ticket_number",
         "ticket_name",
@@ -48,7 +45,6 @@ class SupportTicketAdmin(ModelAdmin):
                     "ticket_number",
                     "ticket_name",
                     "routing",
-                    "status",
                     "raised_by",
                 )
             },
@@ -57,6 +53,7 @@ class SupportTicketAdmin(ModelAdmin):
             "Status",
             {
                 "fields": (
+                    "status",
                     "last_updated_date",
                     "status_note",
                     "related_ticket",
@@ -115,8 +112,9 @@ class SupportTicketAdmin(ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        # If status filter is selected, allow Django filter to work normally
-        if "status__id__exact" in request.GET:
+
+        # If any status filter is selected, don't hide closed tickets
+        if any(key.startswith("status__") for key in request.GET.keys()):
             return queryset
 
         # Default view: hide closed tickets
