@@ -10,12 +10,10 @@ from tickets.models import SupportTicket, TicketRouting, TicketStatus
 class SupportTicketAdmin(ModelAdmin):
     change_list_template = "tickets/change_list.html"
     list_display = (
-        "created_on",
         "ticket_number",
         "ticket_name",
-        "routing",
         "status",
-        "raised_by",
+        "is_urgent",
         "updated_on",
     )
     list_filter = (
@@ -46,6 +44,7 @@ class SupportTicketAdmin(ModelAdmin):
                     "ticket_name",
                     "routing",
                     "raised_by",
+                    "is_urgent",
                 )
             },
         ),
@@ -75,7 +74,7 @@ class SupportTicketAdmin(ModelAdmin):
         css = {"all": ("css/ticket_admin.css",)}
         js = (
             "js/admin_row_click.js",
-            "quickcopy/js/quickcopy.js",
+            "quickcopy/js/quickcopy.js",  # This is needed for the ticket related quick copy functionality
         )
 
     def changelist_view(self, request, extra_context=None):
@@ -96,7 +95,6 @@ class SupportTicketAdmin(ModelAdmin):
         extra_context = extra_context or {}
         extra_context["ticket_routings"] = TicketRouting.objects.all()
         extra_context["ticket_statuses"] = TicketStatus.objects.all()
-
         extra_context["quick_copy_items"] = QuickCopy.objects.filter(
             related_to_tickets=True
         ).order_by("title")
@@ -113,7 +111,6 @@ class SupportTicketAdmin(ModelAdmin):
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
 
-        # Allow filters/search to work normally
         if request.GET:
             return queryset
 

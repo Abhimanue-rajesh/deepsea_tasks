@@ -68,6 +68,7 @@ class SupportTicket(models.Model):
         blank=True,
         related_name="related_tickets",
     )
+    is_urgent = models.BooleanField(default=False)
     created_at = models.DateField(auto_now_add=True)
 
     class Meta:

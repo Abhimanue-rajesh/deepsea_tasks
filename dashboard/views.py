@@ -46,7 +46,7 @@ def dashboard_callback(request, context):
 
     stale_tickets = (
         SupportTicket.objects.exclude(status__name__iexact="Closed")
-        .filter(last_updated_date__lt=timezone.localdate() - timezone.timedelta(days=2))
+        .filter(last_updated_date__lt=timezone.localdate() - timezone.timedelta(days=1))
         .select_related(
             "routing",
             "status",
