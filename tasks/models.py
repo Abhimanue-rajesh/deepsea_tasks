@@ -28,7 +28,6 @@ class Task(models.Model):
         ("in_progress", "In Progress"),
         ("terminated", "Terminated"),
         ("waiting_for_approval", "Waiting For Approval"),
-        ("completed", "Completed"),
         ("closed", "Closed"),
     ]
 
@@ -83,7 +82,7 @@ class Task(models.Model):
 
     # 🔹 Helper: check if there are any open steps
     def has_open_action_steps(self):
-        return self.action_steps.exclude(status="completed").exists()
+        return self.action_steps.exclude(status="closed").exists()
 
     def is_overdue(self):
         days = self.days_left()
