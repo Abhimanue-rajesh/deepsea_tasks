@@ -113,11 +113,10 @@ class SupportTicketAdmin(ModelAdmin):
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
 
-        # If any status filter is selected, don't hide closed tickets
-        if any(key.startswith("status__") for key in request.GET.keys()):
+        # Allow filters/search to work normally
+        if request.GET:
             return queryset
 
-        # Default view: hide closed tickets
         return queryset.exclude(status__name__iexact="Closed")
 
 
