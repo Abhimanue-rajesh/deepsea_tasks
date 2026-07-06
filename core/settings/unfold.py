@@ -40,6 +40,13 @@ UNFOLD = {
                         "icon": "content_copy",
                         "link": reverse_lazy("admin:quickcopy_quickcopy_changelist"),
                     },
+                    {
+                        "title": ("Subscriptions"),
+                        "icon": "subscriptions",
+                        "link": reverse_lazy(
+                            "admin:subscriptions_subscriptiontracker_changelist"
+                        ),
+                    },
                 ],
             },
             {
@@ -72,39 +79,6 @@ UNFOLD = {
                         "title": ("DNS Zones"),
                         "icon": "article",
                         "link": reverse_lazy("admin:web_management_dnszone_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": ("Subscriptions"),
-                "collapsible": True,
-                "separator": True,
-                "items": [
-                    {
-                        "title": ("Subscriptions"),
-                        "icon": "subscriptions",
-                        "link": reverse_lazy(
-                            "admin:subscriptions_subscriptiontracker_changelist"
-                        ),
-                    },
-                    {
-                        "title": ("Payment Cards"),
-                        "icon": "credit_card",
-                        "link": reverse_lazy(
-                            "admin:subscriptions_paymentcard_changelist"
-                        ),
-                    },
-                    {
-                        "title": ("Currencies"),
-                        "icon": "payments",
-                        "link": reverse_lazy("admin:subscriptions_currency_changelist"),
-                    },
-                    {
-                        "title": ("Payment Timings"),
-                        "icon": "schedule",
-                        "link": reverse_lazy(
-                            "admin:subscriptions_paymenttiming_changelist"
-                        ),
                     },
                 ],
             },
