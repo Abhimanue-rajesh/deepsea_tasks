@@ -1,4 +1,5 @@
 from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 from django.shortcuts import redirect
 from unfold.admin import ModelAdmin
 
@@ -80,16 +81,27 @@ class SupportTicketAdmin(ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         if request.method == "POST" and request.POST.get("_quick_add_ticket"):
             ticket_number = request.POST.get("ticket_number")
-            SupportTicket.objects.create(
-                user=request.user,
-                ticket_number=ticket_number.strip() if ticket_number else None,
-                ticket_name=request.POST.get("ticket_name"),
-                routing_id=request.POST.get("routing") or None,
-                status_id=request.POST.get("status") or None,
-                raised_by=request.POST.get("raised_by") or "Not Recorded",
-            )
 
-            messages.success(request, "Support ticket created successfully.")
+            try:
+                SupportTicket.objects.create(
+                    user=request.user,
+                    ticket_number=ticket_number.strip() if ticket_number else None,
+                    ticket_name=request.POST.get("ticket_name"),
+                    routing_id=request.POST.get("routing") or None,
+                    status_id=request.POST.get("status") or None,
+                    raised_by=request.POST.get("raised_by") or "Not Recorded",
+                )
+
+                messages.success(request, "Support ticket created successfully.")
+
+            except ValidationError as error:
+                if hasattr(error, "message_dict"):
+                    first_error = list(error.message_dict.values())[0][0]
+                else:
+                    first_error = error.messages[0]
+
+                messages.error(request, first_error)
+
             return redirect(request.path)
 
         extra_context = extra_context or {}

@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
@@ -78,6 +79,21 @@ class SupportTicket(models.Model):
         ]
         verbose_name_plural = "Support Tickets"
 
+    def clean(self):
+        super().clean()
+
+        if self.ticket_number:
+            qs = SupportTicket.objects.filter(ticket_number=self.ticket_number)
+
+            # Ignore the current object when editing
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+
+            if qs.exists():
+                raise ValidationError(
+                    {"ticket_number": "This ticket number already exists."}
+                )
+
     def __str__(self):
         if self.ticket_number:
             return f"{self.ticket_number} - {self.ticket_name}"
@@ -89,6 +105,7 @@ class SupportTicket(models.Model):
 
     def save(self, *args, **kwargs):
         self.last_updated_date = timezone.localdate()
+        self.full_clean()
         super().save(*args, **kwargs)
 
     def days_since_update(self):
