@@ -88,13 +88,6 @@ UNFOLD = {
                         ),
                     },
                     {
-                        "title": ("Platforms"),
-                        "icon": "apps",
-                        "link": reverse_lazy(
-                            "admin:subscriptions_subscriptionplatform_changelist"
-                        ),
-                    },
-                    {
                         "title": ("Payment Cards"),
                         "icon": "credit_card",
                         "link": reverse_lazy(

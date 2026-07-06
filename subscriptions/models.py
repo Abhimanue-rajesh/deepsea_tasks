@@ -3,16 +3,6 @@ from django.db import models
 from django.utils import timezone
 
 
-class SubscriptionPlatform(models.Model):
-    name = models.CharField(max_length=150, unique=True)
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.name
-
-
 class PaymentCard(models.Model):
     name = models.CharField(max_length=150, unique=True)
 
@@ -58,12 +48,9 @@ class SubscriptionTracker(models.Model):
         ("cancelled", "Cancelled"),
     ]
 
-    platform = models.ForeignKey(
-        SubscriptionPlatform,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="subscriptions",
+    platform = models.CharField(
+        max_length=150,
+        default="No Platform",
     )
 
     status = models.CharField(

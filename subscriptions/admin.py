@@ -6,15 +6,8 @@ from .models import (
     Currency,
     PaymentCard,
     PaymentTiming,
-    SubscriptionPlatform,
     SubscriptionTracker,
 )
-
-
-@admin.register(SubscriptionPlatform)
-class SubscriptionPlatformAdmin(ModelAdmin):
-    list_display = ("name",)
-    search_fields = ("name",)
 
 
 @admin.register(PaymentCard)
@@ -59,7 +52,7 @@ class SubscriptionTrackerAdmin(ModelAdmin):
     )
 
     search_fields = (
-        "platform__name",
+        "platform",
         "email_used",
         "card_used__name",
         "currency__code",
@@ -69,7 +62,6 @@ class SubscriptionTrackerAdmin(ModelAdmin):
     )
 
     autocomplete_fields = (
-        "platform",
         "card_used",
         "currency",
         "payment_timing",
