@@ -1,6 +1,7 @@
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
 from django.shortcuts import redirect
+from django.utils import timezone
 from unfold.admin import ModelAdmin
 
 from quickcopy.models import QuickCopy
@@ -110,6 +111,16 @@ class SupportTicketAdmin(ModelAdmin):
         extra_context["quick_copy_items"] = QuickCopy.objects.filter(
             related_to_tickets=True
         ).order_by("title")
+        extra_context["stale_tickets"] = (
+            SupportTicket.objects.filter(
+                last_updated_date__lt=timezone.localdate() - timezone.timedelta(days=2)
+            )
+            .exclude(status__name__iexact="closed")
+            .select_related(
+                "routing",
+                "status",
+            )
+        )
 
         return super().changelist_view(request, extra_context=extra_context)
 

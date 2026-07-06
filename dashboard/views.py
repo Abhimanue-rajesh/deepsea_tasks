@@ -6,7 +6,7 @@ from django.db.models.functions import TruncMonth
 from django.utils import timezone
 
 from tasks.models import Task, TaskCategory
-from tickets.models import SupportTicket
+from tickets.models import SupportTicket, TicketStatus
 from web_management.models import DomainManager, WebFormManager
 
 
@@ -44,16 +44,6 @@ def dashboard_callback(request, context):
 
     created_counts = [created_map.get(month.replace(day=1), 0) for month in months]
 
-    stale_tickets = (
-        SupportTicket.objects.exclude(status__name__iexact="Closed")
-        .filter(last_updated_date__lt=timezone.localdate() - timezone.timedelta(days=1))
-        .select_related(
-            "routing",
-            "status",
-        )
-        .order_by("last_updated_date")
-    )
-
     today = timezone.localdate()
 
     domain_renewal_reminders = [
@@ -70,6 +60,11 @@ def dashboard_callback(request, context):
         )
         if form.needs_testing()
     ]
+
+    ticket_status_counts = TicketStatus.objects.annotate(
+        ticket_count=Count("tickets")
+    ).order_by("name")
+
     context.update(
         {
             "ticket_chart_labels": json.dumps(month_labels),
@@ -79,12 +74,11 @@ def dashboard_callback(request, context):
             "task_category_counts": TaskCategory.objects.annotate(
                 task_count=Count("task")
             ).order_by("name"),
-            "stale_tickets": stale_tickets,
-            "stale_ticket_count": stale_tickets.count(),
             "domain_renewal_reminders": domain_renewal_reminders,
             "domain_renewal_count": len(domain_renewal_reminders),
             "form_test_reminders": form_test_reminders,
             "form_test_count": len(form_test_reminders),
+            "ticket_status_counts": ticket_status_counts,
         }
     )
 
