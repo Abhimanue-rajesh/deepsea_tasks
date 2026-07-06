@@ -1,7 +1,8 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.models import Group
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.timezone import localdate
 from unfold.admin import ModelAdmin, StackedInline
 from unfold.decorators import display
 
@@ -30,6 +31,7 @@ class TaskActivityAdmin(StackedInline):
 
 @admin.register(Task)
 class TaskAdmin(ModelAdmin):
+    change_list_template = "tasks/change_list.html"
     list_display = (
         "title",
         "priority",
@@ -94,8 +96,10 @@ class TaskAdmin(ModelAdmin):
     )
 
     class Media:
-        js = ("js/task_autosave.js",)
-        js = ("js/admin_row_click.js",)
+        js = (
+            "js/task_autosave.js",
+            "js/admin_row_click.js",
+        )
 
     @display(
         description="Priority",
@@ -108,6 +112,42 @@ class TaskAdmin(ModelAdmin):
     )
     def priority_badge(self, obj):
         return obj.priority
+
+    def changelist_view(self, request, extra_context=None):
+        if request.method == "POST" and request.POST.get("_quick_add_task") == "1":
+            title = request.POST.get("title")
+            priority = request.POST.get("priority")
+            due_date = request.POST.get("due_date") or localdate()
+            status = request.POST.get("status") or "not_started"
+            category_id = request.POST.get("category")
+
+            if not title or not priority or not due_date:
+                messages.error(request, "Please fill all required fields.")
+                return redirect(request.path)
+
+            task = Task(
+                user=request.user,
+                title=title,
+                priority=priority,
+                due_date=due_date,
+                status=status,
+            )
+
+            if category_id:
+                task.category_id = category_id
+
+            task.save()
+
+            messages.success(request, "Task added successfully.")
+            # return redirect(reverse("admin:tasks_task_change", args=[task.pk]))
+
+        extra_context = extra_context or {}
+        extra_context["task_categories"] = TaskCategory.objects.all()
+        extra_context["task_priorities"] = Task.PRIORITY
+        extra_context["task_statuses"] = Task.STATUS
+        extra_context["today"] = localdate()
+
+        return super().changelist_view(request, extra_context=extra_context)
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:
