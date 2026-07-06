@@ -134,3 +134,6 @@ class SubscriptionTrackerAdmin(ModelAdmin):
             obj.created_by = request.user
 
         super().save_model(request, obj, form, change)
+
+    class Media:
+        js = ("js/admin_row_click.js",)
