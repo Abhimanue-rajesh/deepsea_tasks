@@ -5,7 +5,70 @@ from django.utils import timezone
 from unfold.admin import ModelAdmin
 
 from quickcopy.models import QuickCopy
-from tickets.models import SupportTicket, TicketRouting, TicketStatus
+from tickets.models import (
+    SupportTicket,
+    SupportTicketHistory,
+    TicketRouting,
+    TicketStatus,
+)
+
+
+@admin.register(SupportTicketHistory)
+class SupportTicketHistoryAdmin(ModelAdmin):
+    list_display = (
+        "ticket",
+        "field_name",
+        "old_value",
+        "new_value",
+        "changed_by",
+        "changed_at",
+    )
+    search_fields = (
+        "ticket__ticket_name",
+        "ticket__ticket_number",
+        "field_name",
+    )
+    list_filter = (
+        "field_name",
+        "changed_at",
+    )
+
+    readonly_fields = (
+        "ticket",
+        "field_name",
+        "old_value",
+        "new_value",
+        "changed_by",
+        "changed_at",
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class SupportTicketHistoryInline(admin.TabularInline):
+    model = SupportTicketHistory
+    extra = 0
+    can_delete = False
+
+    fields = (
+        "changed_at",
+        "field_name",
+        "old_value",
+        "new_value",
+        "changed_by",
+    )
+
+    readonly_fields = fields
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(SupportTicket)
@@ -37,6 +100,9 @@ class SupportTicketAdmin(ModelAdmin):
     )
     readonly_fields = ("created_at",)
     ordering = ("-created_at",)
+    inlines = [
+        SupportTicketHistoryInline,
+    ]
     fieldsets = (
         (
             "Ticket Details",
@@ -129,6 +195,36 @@ class SupportTicketAdmin(ModelAdmin):
         obj.ticket_number = (
             str(obj.ticket_number).strip() if obj.ticket_number else None
         )
+
+        if change:
+            old_obj = SupportTicket.objects.get(pk=obj.pk)
+
+            fields_to_track = [
+                "ticket_name",
+                "routing",
+                "status",
+                "status_note",
+                "raised_by",
+                "related_ticket",
+                "is_urgent",
+            ]
+
+            for field in fields_to_track:
+                old_value = getattr(old_obj, field)
+                new_value = getattr(obj, field)
+
+                if old_value != new_value:
+                    SupportTicketHistory.objects.create(
+                        ticket=obj,
+                        field_name=field,
+                        old_value=str(old_value) if old_value else "",
+                        new_value=str(new_value) if new_value else "",
+                        changed_by=request.user,
+                    )
+
+        if not obj.pk:
+            obj.user = request.user
+
         super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):
