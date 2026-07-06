@@ -43,7 +43,10 @@ class DomainManagerAdmin(ModelAdmin):
         "renewal_status",
         "updated_at",
     )
-    search_fields = ("domain_name", "registrar")
+    search_fields = (
+        "domain_name",
+        "registrar__name",
+    )
     list_filter = ("renewal_status", "expiry_date")
     inlines = [WebPageInline]
 
