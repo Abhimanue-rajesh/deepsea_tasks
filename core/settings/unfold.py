@@ -44,7 +44,7 @@ UNFOLD = {
             },
             {
                 "title": ("Web Management"),
-                "collapsible": False,
+                "collapsible": True,
                 "separator": True,
                 "items": [
                     {
@@ -72,6 +72,46 @@ UNFOLD = {
                         "title": ("DNS Zones"),
                         "icon": "article",
                         "link": reverse_lazy("admin:web_management_dnszone_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": ("Subscriptions"),
+                "collapsible": True,
+                "separator": True,
+                "items": [
+                    {
+                        "title": ("Subscriptions"),
+                        "icon": "subscriptions",
+                        "link": reverse_lazy(
+                            "admin:subscriptions_subscriptiontracker_changelist"
+                        ),
+                    },
+                    {
+                        "title": ("Platforms"),
+                        "icon": "apps",
+                        "link": reverse_lazy(
+                            "admin:subscriptions_subscriptionplatform_changelist"
+                        ),
+                    },
+                    {
+                        "title": ("Payment Cards"),
+                        "icon": "credit_card",
+                        "link": reverse_lazy(
+                            "admin:subscriptions_paymentcard_changelist"
+                        ),
+                    },
+                    {
+                        "title": ("Currencies"),
+                        "icon": "payments",
+                        "link": reverse_lazy("admin:subscriptions_currency_changelist"),
+                    },
+                    {
+                        "title": ("Payment Timings"),
+                        "icon": "schedule",
+                        "link": reverse_lazy(
+                            "admin:subscriptions_paymenttiming_changelist"
+                        ),
                     },
                 ],
             },

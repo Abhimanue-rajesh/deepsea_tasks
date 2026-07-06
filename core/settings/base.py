@@ -35,6 +35,7 @@ EXTERNAL_APPS = [
     "dashboard.apps.DashboardConfig",
     "credentials.apps.CredentialsConfig",
     "quickcopy.apps.QuickcopyConfig",
+    "subscriptions.apps.SubscriptionsConfig",
 ]
 
 INSTALLED_APPS += EXTERNAL_APPS
