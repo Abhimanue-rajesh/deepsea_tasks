@@ -179,7 +179,7 @@ class SupportTicketAdmin(ModelAdmin):
         ).order_by("title")
         extra_context["stale_tickets"] = (
             SupportTicket.objects.filter(
-                last_updated_date__lt=timezone.localdate() - timezone.timedelta(days=2)
+                last_updated_date__lt=timezone.localdate() - timezone.timedelta(days=1)
             )
             .exclude(status__name__iexact="closed")
             .select_related(
