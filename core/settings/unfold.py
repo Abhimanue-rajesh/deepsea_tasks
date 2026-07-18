@@ -2,6 +2,15 @@ from django.urls import reverse_lazy
 
 # from django.urls import reverse, reverse_lazy
 
+
+def can_manage_users(request):
+    return request.user.is_superuser or request.user.has_perm("auth.view_user")
+
+
+def can_manage_groups(request):
+    return request.user.is_superuser or request.user.has_perm("auth.view_group")
+
+
 UNFOLD = {
     "DASHBOARD_CALLBACK": "dashboard.views.dashboard_callback",
     "SITE_TITLE": "Task Management",
@@ -10,7 +19,7 @@ UNFOLD = {
     "SHOW_BACK_BUTTON": True,
     "THEME": "dark",
     "SIDEBAR": {
-        "show_search": False,
+        "show_search": True,
         "navigation": [
             {
                 "title": ("Navigation"),
@@ -79,6 +88,25 @@ UNFOLD = {
                         "title": ("DNS Zones"),
                         "icon": "article",
                         "link": reverse_lazy("admin:web_management_dnszone_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": "User Management",
+                "collapsible": True,
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Users",
+                        "icon": "person",
+                        "link": reverse_lazy("admin:auth_user_changelist"),
+                        "permission": can_manage_users,
+                    },
+                    {
+                        "title": "Groups & Permissions",
+                        "icon": "group",
+                        "link": reverse_lazy("admin:auth_group_changelist"),
+                        "permission": can_manage_groups,
                     },
                 ],
             },

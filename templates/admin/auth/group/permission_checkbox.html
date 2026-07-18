@@ -1,0 +1,8 @@
+<label class="permission-checkbox" title="{{ permission.name }}">
+    <input type="checkbox"
+           name="permissions"
+           value="{{ permission.id }}"
+           {% if permission.selected %}checked{% endif %}>
+    <span class="permission-checkmark"></span>
+    {% if permission.codename %}<span class="permission-label">{{ permission.name }}</span>{% endif %}
+</label>

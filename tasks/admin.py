@@ -9,8 +9,6 @@ from unfold.decorators import display
 
 from .models import Task, TaskActionStep, TaskActivity, TaskCategory
 
-# admin.site.unregister(Group)
-
 
 class TaskActionStepInline(StackedInline):
     model = TaskActionStep

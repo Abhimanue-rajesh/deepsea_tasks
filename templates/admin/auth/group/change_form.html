@@ -1,0 +1,381 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+{% block field_sets %}
+    <div class="permission-management">
+        <div class="permission-card">
+            <label for="{{ adminform.form.name.id_for_label }}">Group name</label>
+            {{ adminform.form.name }}
+            {% if adminform.form.name.errors %}<div class="permission-error">{{ adminform.form.name.errors }}</div>{% endif %}
+        </div>
+        <div class="permission-toolbar">
+            <div>
+                <h2>Permissions</h2>
+                <p>Select the access this group should have.</p>
+            </div>
+            <div class="permission-toolbar-actions">
+                <input type="search"
+                       id="permission-search"
+                       placeholder="Search applications or models...">
+                <button type="button"
+                        class="permission-button"
+                        onclick="selectAllPermissions()">Select all</button>
+                <button type="button"
+                        class="permission-button"
+                        onclick="clearAllPermissions()">Clear all</button>
+            </div>
+        </div>
+        {% for application in adminform.form.permission_groups %}
+            <section class="permission-app" data-search="{{ application.app_name|lower }}">
+                <div class="permission-app-header">
+                    <h3>{{ application.app_name }}</h3>
+                    <div>
+                        <button type="button"
+                                class="permission-link"
+                                onclick="toggleApplication(this, true)">Select application</button>
+                        <button type="button"
+                                class="permission-link"
+                                onclick="toggleApplication(this, false)">Clear</button>
+                    </div>
+                </div>
+                <div class="permission-table-wrapper">
+                    <table class="permission-table">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>View</th>
+                                <th>Add</th>
+                                <th>Change</th>
+                                <th>Delete</th>
+                                <th>Other</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for model in application.models %}
+                                <tr class="permission-model-row"
+                                    data-search="{{ application.app_name|lower }} {{ model.display_name|lower }}">
+                                    <td class="permission-model-name">
+                                        {{ model.display_name }}
+                                        <div class="model-actions">
+                                            <button type="button" onclick="toggleRow(this, true)">All</button>
+                                            <button type="button" onclick="toggleRow(this, false)">None</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% for permission in model.view %}
+                                            {% include "admin/auth/group/permission_checkbox.html" %}
+                                        {% empty %}
+                                            <span class="permission-empty">—</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for permission in model.add %}
+                                            {% include "admin/auth/group/permission_checkbox.html" %}
+                                        {% empty %}
+                                            <span class="permission-empty">—</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for permission in model.change %}
+                                            {% include "admin/auth/group/permission_checkbox.html" %}
+                                        {% empty %}
+                                            <span class="permission-empty">—</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for permission in model.delete %}
+                                            {% include "admin/auth/group/permission_checkbox.html" %}
+                                        {% empty %}
+                                            <span class="permission-empty">—</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for permission in model.other %}
+                                            {% include "admin/auth/group/permission_checkbox.html" %}
+                                        {% empty %}
+                                            <span class="permission-empty">—</span>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6">No models found for this application.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        {% empty %}
+            <p>No permissions are available.</p>
+        {% endfor %}
+    </div>
+    <style>
+    .permission-management {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .permission-card,
+    .permission-app {
+        background: rgb(17 24 39);
+        border: 1px solid rgb(55 65 81);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .permission-card {
+        padding: 20px;
+    }
+
+    .permission-card label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .permission-card input {
+        background: rgb(15 23 42);
+        border: 1px solid rgb(71 85 105);
+        border-radius: 6px;
+        color: white;
+        max-width: 600px;
+        padding: 10px 12px;
+        width: 100%;
+    }
+
+    .permission-toolbar {
+        align-items: center;
+        display: flex;
+        gap: 20px;
+        justify-content: space-between;
+    }
+
+    .permission-toolbar h2 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .permission-toolbar p {
+        color: rgb(148 163 184);
+        margin: 5px 0 0;
+    }
+
+    .permission-toolbar-actions {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    #permission-search {
+        background: rgb(15 23 42);
+        border: 1px solid rgb(71 85 105);
+        border-radius: 6px;
+        color: white;
+        min-width: 280px;
+        padding: 9px 12px;
+    }
+
+    .permission-button {
+        background: rgb(30 41 59);
+        border: 1px solid rgb(71 85 105);
+        border-radius: 6px;
+        color: white;
+        cursor: pointer;
+        padding: 9px 14px;
+    }
+
+    .permission-button:hover {
+        background: rgb(51 65 85);
+    }
+
+    .permission-app-header {
+        align-items: center;
+        background: rgb(30 41 59);
+        border-bottom: 1px solid rgb(55 65 81);
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 18px;
+    }
+
+    .permission-app-header h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .permission-link {
+        background: transparent;
+        border: none;
+        color: rgb(96 165 250);
+        cursor: pointer;
+        font-size: 13px;
+        margin-left: 12px;
+    }
+
+    .permission-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .permission-table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .permission-table th,
+    .permission-table td {
+        border-bottom: 1px solid rgb(31 41 55);
+        padding: 13px 16px;
+        text-align: center;
+    }
+
+    .permission-table th {
+        background: rgb(17 24 39);
+        color: rgb(148 163 184);
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .permission-table td:first-child,
+    .permission-table th:first-child {
+        text-align: left;
+        width: 35%;
+    }
+
+    .permission-model-name {
+        font-weight: 500;
+    }
+
+    .model-actions {
+        display: inline-flex;
+        gap: 8px;
+        margin-left: 15px;
+    }
+
+    .model-actions button {
+        background: transparent;
+        border: none;
+        color: rgb(96 165 250);
+        cursor: pointer;
+        font-size: 11px;
+        padding: 0;
+    }
+
+    .permission-checkbox {
+        align-items: center;
+        cursor: pointer;
+        display: inline-flex;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .permission-checkbox input {
+        height: 17px;
+        width: 17px;
+    }
+
+    .permission-checkbox small {
+        color: rgb(148 163 184);
+        font-size: 11px;
+    }
+
+    .permission-error {
+        color: rgb(248 113 113);
+        margin-top: 8px;
+    }
+
+    @media (max-width: 900px) {
+        .permission-toolbar {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .permission-toolbar-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        #permission-search {
+            min-width: 100%;
+        }
+
+        .model-actions {
+            display: flex;
+            margin-left: 0;
+            margin-top: 5px;
+        }
+    }
+    </style>
+    <script>
+    function getPermissionCheckboxes(container = document) {
+        return container.querySelectorAll(
+            'input[name="permissions"]'
+        );
+    }
+
+    function selectAllPermissions() {
+        getPermissionCheckboxes().forEach(function (checkbox) {
+            checkbox.checked = true;
+        });
+    }
+
+    function clearAllPermissions() {
+        getPermissionCheckboxes().forEach(function (checkbox) {
+            checkbox.checked = false;
+        });
+    }
+
+    function toggleApplication(button, checked) {
+        const application = button.closest(".permission-app");
+
+        getPermissionCheckboxes(application).forEach(function (checkbox) {
+            checkbox.checked = checked;
+        });
+    }
+
+    function toggleRow(button, checked) {
+        const row = button.closest(".permission-model-row");
+
+        getPermissionCheckboxes(row).forEach(function (checkbox) {
+            checkbox.checked = checked;
+        });
+    }
+
+    document
+        .getElementById("permission-search")
+        .addEventListener("input", function () {
+            const searchValue = this.value.toLowerCase().trim();
+
+            document
+                .querySelectorAll(".permission-app")
+                .forEach(function (application) {
+                    let visibleRows = 0;
+
+                    application
+                        .querySelectorAll(".permission-model-row")
+                        .forEach(function (row) {
+                            const searchableText =
+                                row.dataset.search || "";
+
+                            const visible =
+                                searchableText.includes(searchValue);
+
+                            row.style.display = visible
+                                ? ""
+                                : "none";
+
+                            if (visible) {
+                                visibleRows++;
+                            }
+                        });
+
+                    application.style.display =
+                        visibleRows > 0 ? "" : "none";
+                });
+        });
+    </script>
+{% endblock field_sets %}
