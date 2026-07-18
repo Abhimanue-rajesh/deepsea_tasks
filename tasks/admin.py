@@ -1,5 +1,6 @@
 from django.contrib import admin, messages
-from django.contrib.auth.models import Group
+
+# from django.contrib.auth.models import Group
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.timezone import localdate
@@ -8,7 +9,7 @@ from unfold.decorators import display
 
 from .models import Task, TaskActionStep, TaskActivity, TaskCategory
 
-admin.site.unregister(Group)
+# admin.site.unregister(Group)
 
 
 class TaskActionStepInline(StackedInline):
