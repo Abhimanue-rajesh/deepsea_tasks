@@ -29,16 +29,6 @@ UNFOLD = {
                         "icon": "dashboard",
                         "link": reverse_lazy("admin:index"),
                     },
-                    # {
-                    #     "title": ("Tasks"),
-                    #     "icon": "task",
-                    #     "link": reverse_lazy("admin:tasks_task_changelist"),
-                    # },
-                    {
-                        "title": "Tasks",
-                        "icon": "analytics",
-                        "link": reverse_lazy("admin:tasks_dashboard"),
-                    },
                     {
                         "title": ("Support Tickets"),
                         "icon": "confirmation_number",
@@ -60,6 +50,23 @@ UNFOLD = {
                         "link": reverse_lazy(
                             "admin:subscriptions_subscriptiontracker_changelist"
                         ),
+                    },
+                ],
+            },
+            {
+                "title": ("Tasks Management"),
+                "collapsible": True,
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Projects",
+                        "icon": "analytics",
+                        "link": reverse_lazy("admin:tasks_dashboard"),
+                    },
+                    {
+                        "title": "Daily Tasks",
+                        "icon": "calendar_today",
+                        "link": reverse_lazy("admin:daily_task_dashboard"),
                     },
                 ],
             },

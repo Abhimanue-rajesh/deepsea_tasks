@@ -1,4 +1,6 @@
 from django.contrib import admin, messages
+from django.contrib.auth import get_user_model
+from django.db.models import Count, Q
 from django.shortcuts import redirect
 from django.urls import path, reverse
 from django.utils.timezone import localdate
@@ -252,8 +254,47 @@ class ProjectAdmin(ModelAdmin):
         js = ("js/admin_row_click.js",)
 
 
+User = get_user_model()
+
+
+class DailyTaskDashboard(UnfoldModelAdminViewMixin, TemplateView):
+    title = "Daily Tasks"
+    permission_required = ()
+    template_name = "tasks/daily_task_dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        users = (
+            User.objects.filter(
+                groups__name="Designing Team",
+                is_active=True,
+            )
+            .annotate(
+                total_daily_tasks=Count("daily_tasks"),
+                pending_approval_count=Count(
+                    "daily_tasks",
+                    filter=Q(daily_tasks__approval_status="pending"),
+                ),
+            )
+            .distinct()
+            .order_by("first_name", "username")
+        )
+
+        context.update(
+            {
+                "daily_task_users": users,
+                "daily_task_list_url": reverse("admin:tasks_dailytask_changelist"),
+            }
+        )
+
+        return context
+
+
 @admin.register(DailyTask)
 class DailyTaskAdmin(ModelAdmin):
+    # change_list_template = "tasks/daily_task_change_list.html"
+
     list_display = (
         "task_date",
         "user",
@@ -263,40 +304,54 @@ class DailyTaskAdmin(ModelAdmin):
     )
 
     list_filter = (
+        "user",
         "task_date",
         "status",
         "approval_status",
-        "user",
     )
 
     search_fields = (
         "title",
         "description",
+        "user__username",
         "user__first_name",
         "user__last_name",
     )
 
     readonly_fields = (
-        "task_date",
         "created_at",
         "updated_at",
     )
 
-    fieldsets = (
-        (
-            "Task",
-            {
-                "fields": (
-                    "task_date",
-                    "user",
-                    "title",
-                    "description",
-                    "status",
-                    "approval_status",
-                )
-            },
-        ),
+    ordering = (
+        "-task_date",
+        "-created_at",
     )
+
+    def get_urls(self):
+        custom_urls = [
+            path(
+                "dashboard/",
+                self.admin_site.admin_view(
+                    DailyTaskDashboard.as_view(model_admin=self)
+                ),
+                name="daily_task_dashboard",
+            ),
+        ]
+
+        return custom_urls + super().get_urls()
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+
+        if request.user.is_superuser:
+            return queryset
+
+        # Managers can see all records if they have change permission.
+        if request.user.has_perm("tasks.change_dailytask"):
+            return queryset
+
+        return queryset.filter(user=request.user)
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:
@@ -304,11 +359,11 @@ class DailyTaskAdmin(ModelAdmin):
 
         super().save_model(request, obj, form, change)
 
-    def get_readonly_fields(self, request, obj=None):
-        fields = list(super().get_readonly_fields(request, obj))
+    def get_list_display(self, request):
+        list_display = list(super().get_list_display(request))
 
-        # Normal users shouldn't change user or approval status
-        if not request.user.is_superuser:
-            fields.extend(["user", "approval_status"])
+        if request.GET.get("user__id__exact"):
+            if "user" in list_display:
+                list_display.remove("user")
 
-        return fields
+        return tuple(list_display)
