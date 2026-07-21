@@ -2,12 +2,30 @@ from django.contrib import admin, messages
 
 # from django.contrib.auth.models import Group
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.urls import path, reverse
 from django.utils.timezone import localdate
+from django.views.generic import TemplateView
 from unfold.admin import ModelAdmin, StackedInline
 from unfold.decorators import display
+from unfold.views import UnfoldModelAdminViewMixin
 
-from .models import Task, TaskActionStep, TaskActivity, TaskCategory
+from tasks.models import Project, Task, TaskActionStep, TaskActivity, TaskCategory
+
+# from django.db.models import Count
+
+
+class TasksDashboard(UnfoldModelAdminViewMixin, TemplateView):
+    title = "Task Dashboard"
+    permission_required = ()
+    template_name = "tasks/tasks_dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["projects"] = Project.objects.all().order_by("name")
+        context["task_list_url"] = reverse("admin:tasks_task_changelist")
+
+        return context
 
 
 class TaskActionStepInline(StackedInline):
@@ -41,6 +59,7 @@ class TaskAdmin(ModelAdmin):
         "pending_with",
     )
     list_filter = (
+        "project",
         "status",
         "priority",
         "category",
@@ -64,13 +83,14 @@ class TaskAdmin(ModelAdmin):
         TaskActivityAdmin,
         TaskActionStepInline,
     ]
-    ordering = ("created_at",)
+    ordering = ("-created_at",)
 
     fieldsets = (
         (
             "Task Details",
             {
                 "fields": (
+                    "project",
                     "title",
                     "description",
                     "category",
@@ -183,9 +203,29 @@ class TaskAdmin(ModelAdmin):
         # Default view: hide closed tasks
         return queryset.exclude(status="closed")
 
+    def get_urls(self):
+        custom_urls = [
+            path(
+                "dashboard/",
+                self.admin_site.admin_view(TasksDashboard.as_view(model_admin=self)),
+                name="tasks_dashboard",
+            ),
+        ]
+
+        return custom_urls + super().get_urls()
+
 
 @admin.register(TaskCategory)
 class TaskCategoryAdmin(ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
+
+    class Media:
+        js = ("js/admin_row_click.js",)
+
+
+@admin.register(Project)
+class ProjectAdmin(ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
 

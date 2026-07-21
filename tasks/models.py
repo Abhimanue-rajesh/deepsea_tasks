@@ -4,6 +4,17 @@ from django.utils import timezone
 from django.utils.timezone import localdate
 
 
+class Project(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Project"
+        verbose_name_plural = "Projects"
+
+
 class TaskCategory(models.Model):
     name = models.CharField(max_length=100)
 
@@ -42,6 +53,14 @@ class Task(models.Model):
         blank=True,
     )
 
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tasks",
+    )
+
     category = models.ForeignKey(
         TaskCategory, on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -72,7 +91,7 @@ class Task(models.Model):
 
         return (due_date - today).days
 
-    # 🔹 Helper: get next pending step in the action plan
+    # Helper: get next pending step in the action plan
     def next_action_step(self):
         return (
             self.action_steps.filter(status__in=["pending", "in_progress"])
@@ -80,7 +99,7 @@ class Task(models.Model):
             .first()
         )
 
-    # 🔹 Helper: check if there are any open steps
+    # Helper: check if there are any open steps
     def has_open_action_steps(self):
         return self.action_steps.exclude(status="closed").exists()
 

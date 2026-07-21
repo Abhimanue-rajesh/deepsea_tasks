@@ -13,9 +13,9 @@ def can_manage_groups(request):
 
 UNFOLD = {
     "DASHBOARD_CALLBACK": "dashboard.views.dashboard_callback",
-    "SITE_TITLE": "Task Management",
-    "SITE_HEADER": "Task Management Admin",
-    "SITE_SUBHEADER": "Administration",
+    "SITE_TITLE": "Internal Application - The Deep Seafood",
+    "SITE_HEADER": "Internal Application",
+    "SITE_SUBHEADER": "The Deep Seafood",
     "SHOW_BACK_BUTTON": True,
     "THEME": "dark",
     "SIDEBAR": {
@@ -29,10 +29,15 @@ UNFOLD = {
                         "icon": "dashboard",
                         "link": reverse_lazy("admin:index"),
                     },
+                    # {
+                    #     "title": ("Tasks"),
+                    #     "icon": "task",
+                    #     "link": reverse_lazy("admin:tasks_task_changelist"),
+                    # },
                     {
-                        "title": ("Tasks"),
-                        "icon": "task",
-                        "link": reverse_lazy("admin:tasks_task_changelist"),
+                        "title": "Tasks",
+                        "icon": "analytics",
+                        "link": reverse_lazy("admin:tasks_dashboard"),
                     },
                     {
                         "title": ("Support Tickets"),

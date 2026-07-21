@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+{% load admin_urls i18n unfold %}
+{% block title %}
+    Internal Application - The Deep Seafood
+{% endblock title %}
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock branding %}
+{% block content %}
+    <div class="flex flex-col gap-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold text-font-important-light dark:text-font-important-dark">Task Dashboard</h1>
+                <p class="mt-1 text-sm text-font-subtle-light dark:text-font-subtle-dark">Select a project to view its tasks.</p>
+            </div>
+            <a href="{{ task_list_url }}"
+               class="rounded-default bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700">
+                View All Tasks
+            </a>
+        </div>
+        <div class="overflow-hidden rounded-default border border-base-200 bg-white dark:border-base-800 dark:bg-base-900">
+            <div class="border-b border-base-200 px-6 py-4 dark:border-base-800">
+                <h2 class="font-semibold text-font-important-light dark:text-font-important-dark">Projects</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-base-50 dark:bg-base-800">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-font-subtle-light dark:text-font-subtle-dark">
+                                Project
+                            </th>
+                            <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-font-subtle-light dark:text-font-subtle-dark">
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-base-200 dark:divide-base-800">
+                        {% for project in projects %}
+                            <tr class="transition hover:bg-base-50 dark:hover:bg-base-800">
+                                <td class="px-6 py-4">
+                                    <a href="{{ task_list_url }}?project__id__exact={{ project.pk }}"
+                                       class="font-medium text-font-important-light hover:text-primary-600 dark:text-font-important-dark dark:hover:text-primary-400">
+                                        {{ project.name }}
+                                    </a>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <a href="{{ task_list_url }}?project__id__exact={{ project.pk }}"
+                                       class="inline-flex items-center rounded-default border border-base-200 px-3 py-1.5 text-sm font-medium text-font-default-light hover:border-primary-500 hover:text-primary-600 dark:border-base-700 dark:text-font-default-dark dark:hover:border-primary-500 dark:hover:text-primary-400">
+                                        View Tasks
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2"
+                                    class="px-6 py-10 text-center text-sm text-font-subtle-light dark:text-font-subtle-dark">
+                                    No projects available.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
