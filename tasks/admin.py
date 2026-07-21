@@ -1,6 +1,4 @@
 from django.contrib import admin, messages
-
-# from django.contrib.auth.models import Group
 from django.shortcuts import redirect
 from django.urls import path, reverse
 from django.utils.timezone import localdate
@@ -9,9 +7,14 @@ from unfold.admin import ModelAdmin, StackedInline
 from unfold.decorators import display
 from unfold.views import UnfoldModelAdminViewMixin
 
-from tasks.models import Project, Task, TaskActionStep, TaskActivity, TaskCategory
-
-# from django.db.models import Count
+from tasks.models import (
+    DailyTask,
+    Project,
+    Task,
+    TaskActionStep,
+    TaskActivity,
+    TaskCategory,
+)
 
 
 class TasksDashboard(UnfoldModelAdminViewMixin, TemplateView):
@@ -50,10 +53,10 @@ class TaskActivityAdmin(StackedInline):
 class TaskAdmin(ModelAdmin):
     change_list_template = "tasks/change_list.html"
     list_display = (
+        "project",
         "title",
         "priority",
         "status",
-        "last_activity_display",
         "last_activity_date_display",
         "due_date",
         "pending_with",
@@ -133,13 +136,14 @@ class TaskAdmin(ModelAdmin):
         return obj.priority
 
     def changelist_view(self, request, extra_context=None):
+        project_id = request.GET.get("project__id__exact")
         if request.method == "POST" and request.POST.get("_quick_add_task") == "1":
             title = request.POST.get("title")
             priority = request.POST.get("priority")
             due_date = request.POST.get("due_date") or localdate()
             status = request.POST.get("status") or "not_started"
             category_id = request.POST.get("category")
-
+            selected_project_id = request.POST.get("project") or project_id
             if not title or not priority or not due_date:
                 messages.error(request, "Please fill all required fields.")
                 return redirect(request.path)
@@ -151,20 +155,26 @@ class TaskAdmin(ModelAdmin):
                 due_date=due_date,
                 status=status,
             )
-
             if category_id:
                 task.category_id = category_id
+
+            if selected_project_id:
+                task.project_id = selected_project_id
 
             task.save()
 
             messages.success(request, "Task added successfully.")
-            # return redirect(reverse("admin:tasks_task_change", args=[task.pk]))
+            return redirect(request.get_full_path())
 
         extra_context = extra_context or {}
         extra_context["task_categories"] = TaskCategory.objects.all()
         extra_context["task_priorities"] = Task.PRIORITY
         extra_context["task_statuses"] = Task.STATUS
         extra_context["today"] = localdate()
+        extra_context["selected_project_id"] = project_id
+        extra_context["selected_project"] = (
+            Project.objects.get(id=project_id) if project_id else None
+        )
 
         return super().changelist_view(request, extra_context=extra_context)
 
@@ -214,6 +224,15 @@ class TaskAdmin(ModelAdmin):
 
         return custom_urls + super().get_urls()
 
+    # This is done so that when in filter the project title is not shown in the table
+    def get_list_display(self, request):
+        list_display = list(super().get_list_display(request))
+
+        if request.GET.get("project__id__exact") and "project" in list_display:
+            list_display.remove("project")
+
+        return tuple(list_display)
+
 
 @admin.register(TaskCategory)
 class TaskCategoryAdmin(ModelAdmin):
@@ -231,3 +250,65 @@ class ProjectAdmin(ModelAdmin):
 
     class Media:
         js = ("js/admin_row_click.js",)
+
+
+@admin.register(DailyTask)
+class DailyTaskAdmin(ModelAdmin):
+    list_display = (
+        "task_date",
+        "user",
+        "title",
+        "status",
+        "approval_status",
+    )
+
+    list_filter = (
+        "task_date",
+        "status",
+        "approval_status",
+        "user",
+    )
+
+    search_fields = (
+        "title",
+        "description",
+        "user__first_name",
+        "user__last_name",
+    )
+
+    readonly_fields = (
+        "task_date",
+        "created_at",
+        "updated_at",
+    )
+
+    fieldsets = (
+        (
+            "Task",
+            {
+                "fields": (
+                    "task_date",
+                    "user",
+                    "title",
+                    "description",
+                    "status",
+                    "approval_status",
+                )
+            },
+        ),
+    )
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.user = request.user
+
+        super().save_model(request, obj, form, change)
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = list(super().get_readonly_fields(request, obj))
+
+        # Normal users shouldn't change user or approval status
+        if not request.user.is_superuser:
+            fields.extend(["user", "approval_status"])
+
+        return fields
