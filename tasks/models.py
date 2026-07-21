@@ -193,6 +193,17 @@ class TaskActivity(models.Model):
         return f"{self.task.title} - {self.activity_note}"
 
 
+class Brand(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Brand"
+        verbose_name_plural = "Brands"
+
+
 class DailyTask(models.Model):
     STATUS = [
         ("not_started", "Not Started"),
@@ -212,6 +223,13 @@ class DailyTask(models.Model):
         related_name="daily_tasks",
     )
     title = models.CharField(max_length=200)
+    brand = models.ForeignKey(
+        Brand,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="daily_tasks",
+    )
     description = models.TextField(blank=True)
     status = models.CharField(
         max_length=20,
@@ -224,6 +242,14 @@ class DailyTask(models.Model):
         default="pending",
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_daily_tasks",
+        editable=False,
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

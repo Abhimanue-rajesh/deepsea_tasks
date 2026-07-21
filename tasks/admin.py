@@ -10,6 +10,7 @@ from unfold.decorators import display
 from unfold.views import UnfoldModelAdminViewMixin
 
 from tasks.models import (
+    Brand,
     DailyTask,
     Project,
     Task,
@@ -297,6 +298,7 @@ class DailyTaskAdmin(ModelAdmin):
 
     list_display = (
         "task_date",
+        "created_by",
         "user",
         "title",
         "status",
@@ -319,6 +321,7 @@ class DailyTaskAdmin(ModelAdmin):
     )
 
     readonly_fields = (
+        "created_by",
         "created_at",
         "updated_at",
     )
@@ -355,7 +358,7 @@ class DailyTaskAdmin(ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:
-            obj.user = request.user
+            obj.created_by = request.user
 
         super().save_model(request, obj, form, change)
 
@@ -367,3 +370,12 @@ class DailyTaskAdmin(ModelAdmin):
                 list_display.remove("user")
 
         return tuple(list_display)
+
+
+@admin.register(Brand)
+class BrandAdmin(ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
+
+    class Media:
+        js = ("js/admin_row_click.js",)

@@ -68,6 +68,11 @@ UNFOLD = {
                         "icon": "calendar_today",
                         "link": reverse_lazy("admin:daily_task_dashboard"),
                     },
+                    {
+                        "title": "Brands",
+                        "icon": "label",
+                        "link": reverse_lazy("admin:tasks_brand_changelist"),
+                    },
                 ],
             },
             {
