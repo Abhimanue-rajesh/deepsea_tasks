@@ -268,7 +268,7 @@ class DailyTaskDashboard(UnfoldModelAdminViewMixin, TemplateView):
 
         users = (
             User.objects.filter(
-                groups__name="Designing Team",
+                groups__name="Daily Task Users",
                 is_active=True,
             )
             .annotate(
