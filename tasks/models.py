@@ -4,6 +4,17 @@ from django.utils import timezone
 from django.utils.timezone import localdate
 
 
+class Project(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Project"
+        verbose_name_plural = "Projects"
+
+
 class TaskCategory(models.Model):
     name = models.CharField(max_length=100)
 
@@ -22,7 +33,6 @@ class Task(models.Model):
         ("medium", "Medium"),
         ("low", "Low"),
     ]
-
     STATUS = [
         ("not_started", "Not Started"),
         ("in_progress", "In Progress"),
@@ -30,7 +40,6 @@ class Task(models.Model):
         ("waiting_for_approval", "Waiting For Approval"),
         ("closed", "Closed"),
     ]
-
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     description = models.TextField()
@@ -41,15 +50,19 @@ class Task(models.Model):
         null=True,
         blank=True,
     )
-
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tasks",
+    )
     category = models.ForeignKey(
         TaskCategory, on_delete=models.SET_NULL, null=True, blank=True
     )
-
     created_at = models.DateField(auto_now_add=True, editable=False)
     updated_date = models.DateField(auto_now=True)
     due_date = models.DateField(default=localdate)
-
     submitted_date = models.DateTimeField(null=True, blank=True)
 
     class Meta:
@@ -72,7 +85,7 @@ class Task(models.Model):
 
         return (due_date - today).days
 
-    # 🔹 Helper: get next pending step in the action plan
+    # Helper: get next pending step in the action plan
     def next_action_step(self):
         return (
             self.action_steps.filter(status__in=["pending", "in_progress"])
@@ -80,7 +93,7 @@ class Task(models.Model):
             .first()
         )
 
-    # 🔹 Helper: check if there are any open steps
+    # Helper: check if there are any open steps
     def has_open_action_steps(self):
         return self.action_steps.exclude(status="closed").exists()
 
@@ -130,7 +143,6 @@ class TaskActionStep(models.Model):
         ("blocked", "Blocked"),
         ("completed", "Completed"),
     ]
-
     task = models.ForeignKey(
         Task,
         on_delete=models.CASCADE,
@@ -139,15 +151,12 @@ class TaskActionStep(models.Model):
     title = models.CharField(max_length=200)
     details = models.TextField(blank=True)
     order = models.PositiveIntegerField(default=0)
-
     status = models.CharField(
         max_length=20,
         choices=STATUS,
         default="pending",
     )
-
     assigned_to = models.CharField(max_length=200)
-
     due_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateField(null=True, blank=True)
@@ -173,7 +182,6 @@ class TaskActivity(models.Model):
     )
     activity_note = models.CharField(max_length=255)
     activity_date = models.DateField(default=localdate)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -183,3 +191,71 @@ class TaskActivity(models.Model):
 
     def __str__(self):
         return f"{self.task.title} - {self.activity_note}"
+
+
+class Brand(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Brand"
+        verbose_name_plural = "Brands"
+
+
+class DailyTask(models.Model):
+    STATUS = [
+        ("not_started", "Not Started"),
+        ("in_progress", "In Progress"),
+        ("completed", "Completed"),
+        ("on_hold", "On Hold"),
+    ]
+    APPROVAL_STATUS = [
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    ]
+    task_date = models.DateField(default=localdate)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="daily_tasks",
+    )
+    title = models.CharField(max_length=200)
+    brand = models.ForeignKey(
+        Brand,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="daily_tasks",
+    )
+    description = models.TextField(blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS,
+        default="not_started",
+    )
+    approval_status = models.CharField(
+        max_length=20,
+        choices=APPROVAL_STATUS,
+        default="pending",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_daily_tasks",
+        editable=False,
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-task_date", "-created_at"]
+        verbose_name = "Daily Task"
+        verbose_name_plural = "Daily Tasks"
+
+    def __str__(self):
+        return f"{self.user} - {self.title}"
