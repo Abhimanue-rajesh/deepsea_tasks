@@ -39,11 +39,17 @@
                                         {{ project.name }}
                                     </a>
                                 </td>
-                                <td class="px-6 py-4 text-right">
-                                    <a href="{{ task_list_url }}?project__id__exact={{ project.pk }}"
-                                       class="inline-flex items-center rounded-default border border-base-200 px-3 py-1.5 text-sm font-medium text-font-default-light hover:border-primary-500 hover:text-primary-600 dark:border-base-700 dark:text-font-default-dark dark:hover:border-primary-500 dark:hover:text-primary-400">
-                                        View Tasks
-                                    </a>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{% url 'admin:tasks_project_change' project.pk %}"
+                                           class="inline-flex items-center rounded-default border border-base-200 px-3 py-1.5 text-sm font-medium text-font-default-light hover:border-primary-500 hover:text-primary-600 dark:border-base-700 dark:text-font-default-dark dark:hover:border-primary-500 dark:hover:text-primary-400">
+                                            Edit Project
+                                        </a>
+                                        <a href="{{ task_list_url }}?project__id__exact={{ project.pk }}"
+                                           class="inline-flex items-center rounded-default border border-base-200 px-3 py-1.5 text-sm font-medium text-font-default-light hover:border-primary-500 hover:text-primary-600 dark:border-base-700 dark:text-font-default-dark dark:hover:border-primary-500 dark:hover:text-primary-400">
+                                            View Tasks
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         {% empty %}

@@ -11,35 +11,36 @@
                         {% block userlinks %}
                             {% include "unfold/helpers/userlinks.html" %}
                         {% endblock userlinks %}
-                        <div class="ml-auto hidden items-center gap-5 lg:flex"
-                             id="world-clock-container">
-                            <div class="mr-3 text-right">
-                                <div class="text-xs font-medium uppercase text-font-subtle-light dark:text-font-subtle-dark">Today</div>
-                                <div id="current-date"
-                                     class="text-sm font-semibold text-font-important-light dark:text-font-important-dark">
-                                    ---
+                        <div class="ml-6 pl-6 border-l border-base-200 dark:border-base-700">
+                            <div class="flex items-center gap-8" id="world-clock-container">
+                                <div class="text-right">
+                                    <div class="text-xs font-medium uppercase text-font-subtle-light dark:text-font-subtle-dark">Today</div>
+                                    <div id="current-date"
+                                         class="text-sm font-semibold text-font-important-light dark:text-font-important-dark">
+                                        ---
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="border-l border-base-200 pl-5 dark:border-base-700"></div>
-                            <div class="text-right">
-                                <div class="text-xs font-medium uppercase text-font-subtle-light dark:text-font-subtle-dark">India</div>
-                                <div id="india-time"
-                                     class="text-sm font-semibold text-font-important-light dark:text-font-important-dark">
-                                    --:--
+                                <div class="h-8 border-l border-base-200 dark:border-base-700"></div>
+                                <div class="text-center min-w-18.75">
+                                    <div class="text-xs font-medium uppercase text-font-subtle-light dark:text-font-subtle-dark">India</div>
+                                    <div id="india-time"
+                                         class="text-sm font-semibold text-font-important-light dark:text-font-important-dark">
+                                        --:--
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xs font-medium uppercase text-font-subtle-light dark:text-font-subtle-dark">UAE</div>
-                                <div id="uae-time"
-                                     class="text-sm font-semibold text-font-important-light dark:text-font-important-dark">
-                                    --:--
+                                <div class="text-center min-w-18.75">
+                                    <div class="text-xs font-medium uppercase text-font-subtle-light dark:text-font-subtle-dark">UAE</div>
+                                    <div id="uae-time"
+                                         class="text-sm font-semibold text-font-important-light dark:text-font-important-dark">
+                                        --:--
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xs font-medium uppercase text-font-subtle-light dark:text-font-subtle-dark">KSA</div>
-                                <div id="ksa-time"
-                                     class="text-sm font-semibold text-font-important-light dark:text-font-important-dark">
-                                    --:--
+                                <div class="text-center min-w-18.75">
+                                    <div class="text-xs font-medium uppercase text-font-subtle-light dark:text-font-subtle-dark">KSA</div>
+                                    <div id="ksa-time"
+                                         class="text-sm font-semibold text-font-important-light dark:text-font-important-dark">
+                                        --:--
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -1,3 +1,4 @@
+from django.templatetags.static import static
 from django.urls import reverse_lazy
 
 
@@ -68,6 +69,9 @@ UNFOLD = {
     "SITE_SUBHEADER": "The Deep Seafood",
     "SHOW_BACK_BUTTON": True,
     "THEME": "dark",
+    "SCRIPTS": [
+        lambda request: static("js/main.js"),
+    ],
     "SIDEBAR": {
         "show_search": True,
         "navigation": [
@@ -94,13 +98,13 @@ UNFOLD = {
                 "items": [
                     {
                         "title": "Projects",
-                        "icon": "folder",
+                        "icon": "folder_open",
                         "link": reverse_lazy("admin:tasks_dashboard"),
                         "permission": can_view_tasks,
                     },
                     {
                         "title": "Daily Tasks",
-                        "icon": "event_note",
+                        "icon": "today",
                         "link": reverse_lazy("admin:daily_task_dashboard"),
                         "permission": can_view_daily_tasks,
                     },
@@ -112,8 +116,20 @@ UNFOLD = {
                     },
                     {
                         "title": "Task Categories",
-                        "icon": "category",
+                        "icon": "inventory_2",
                         "link": reverse_lazy("admin:tasks_taskcategory_changelist"),
+                        "permission": can_view_tasks,
+                    },
+                    {
+                        "title": "Departments",
+                        "icon": "apartment",
+                        "link": reverse_lazy("admin:tasks_department_changelist"),
+                        "permission": can_view_tasks,
+                    },
+                    {
+                        "title": "Project Types",
+                        "icon": "account_tree",
+                        "link": reverse_lazy("admin:tasks_projecttype_changelist"),
                         "permission": can_view_tasks,
                     },
                 ],

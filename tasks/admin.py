@@ -1,25 +1,187 @@
 from django.contrib import admin, messages
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import path, reverse
 from django.utils.timezone import localdate
 from django.views.generic import TemplateView
-from unfold.admin import ModelAdmin, StackedInline
+from unfold.admin import ModelAdmin, StackedInline, TabularInline
 from unfold.decorators import display
 from unfold.views import UnfoldModelAdminViewMixin
 
 from tasks.models import (
     Brand,
     DailyTask,
+    Department,
     Project,
+    ProjectHistory,
+    ProjectType,
     Task,
     TaskActionStep,
     TaskActivity,
     TaskCategory,
 )
+
+
+class ProjectHistoryInline(TabularInline):
+    model = ProjectHistory
+    extra = 0
+    fields = (
+        "action",
+        "previous_status",
+        "new_status",
+        "description",
+        "updated_by",
+        "created_at",
+    )
+    readonly_fields = (
+        "updated_by",
+        "created_at",
+    )
+    show_change_link = True
+
+
+@admin.register(Project)
+class ProjectAdmin(ModelAdmin):
+    list_display = (
+        "name",
+        "department",
+        "project_type",
+        "project_manager",
+        "status",
+        "deadline",
+        "updated_at",
+    )
+
+    list_filter = (
+        "status",
+        "department",
+        "project_type",
+        "deadline",
+    )
+
+    search_fields = (
+        "name",
+        "description",
+        "project_manager__username",
+        "team_members__username",
+    )
+
+    filter_horizontal = ("team_members",)
+
+    readonly_fields = (
+        "created_by",
+        "created_at",
+        "updated_at",
+    )
+
+    inlines = [
+        ProjectHistoryInline,
+    ]
+
+    class Media:
+        js = ("js/admin_row_click.js",)
+
+    def save_model(self, request, obj, form, change):
+        previous_status = None
+
+        if change and obj.pk:
+            previous_status = (
+                Project.objects.filter(pk=obj.pk)
+                .values_list("status", flat=True)
+                .first()
+            )
+
+        if not obj.pk:
+            obj.created_by = request.user
+
+        super().save_model(request, obj, form, change)
+
+        if not change:
+            ProjectHistory.objects.create(
+                project=obj,
+                action="created",
+                new_status=obj.status,
+                description="Project created.",
+                updated_by=request.user,
+            )
+
+        elif previous_status != obj.status:
+            ProjectHistory.objects.create(
+                project=obj,
+                action="status_changed",
+                previous_status=previous_status or "",
+                new_status=obj.status,
+                description=(
+                    f"Project status changed from "
+                    f"{previous_status} to {obj.status}."
+                ),
+                updated_by=request.user,
+            )
+
+
+@admin.register(Department)
+class DepartmentAdmin(ModelAdmin):
+    list_display = (
+        "name",
+        "is_active",
+    )
+
+    search_fields = ("name",)
+
+    list_filter = ("is_active",)
+
+
+@admin.register(ProjectType)
+class ProjectTypeAdmin(ModelAdmin):
+    list_display = (
+        "name",
+        "is_active",
+    )
+
+    search_fields = ("name",)
+
+    list_filter = ("is_active",)
+
+
+@admin.register(ProjectHistory)
+class ProjectHistoryAdmin(ModelAdmin):
+    list_display = (
+        "project",
+        "action",
+        "previous_status",
+        "new_status",
+        "updated_by",
+        "created_at",
+    )
+
+    list_filter = (
+        "action",
+        "previous_status",
+        "new_status",
+        "created_at",
+    )
+
+    search_fields = (
+        "project__name",
+        "description",
+        "updated_by__username",
+    )
+
+    readonly_fields = (
+        "project",
+        "action",
+        "previous_status",
+        "new_status",
+        "description",
+        "updated_by",
+        "created_at",
+    )
+
+    def has_add_permission(self, request):
+        return False
 
 
 class TasksDashboard(UnfoldModelAdminViewMixin, TemplateView):
@@ -248,15 +410,6 @@ class TaskCategoryAdmin(ModelAdmin):
         js = ("js/admin_row_click.js",)
 
 
-@admin.register(Project)
-class ProjectAdmin(ModelAdmin):
-    list_display = ("name",)
-    search_fields = ("name",)
-
-    class Media:
-        js = ("js/admin_row_click.js",)
-
-
 User = get_user_model()
 
 
@@ -270,12 +423,6 @@ class DailyTaskDashboard(UnfoldModelAdminViewMixin, TemplateView):
 
         today = localdate()
 
-        today_tasks = (
-            DailyTask.objects.filter(task_date=today)
-            .select_related("brand")
-            .order_by("status", "title")
-        )
-
         users = (
             User.objects.filter(
                 groups__name="Daily Task Users",
@@ -284,22 +431,17 @@ class DailyTaskDashboard(UnfoldModelAdminViewMixin, TemplateView):
             .annotate(
                 total_daily_tasks=Count(
                     "daily_tasks",
+                    filter=Q(daily_tasks__task_date=today),
                     distinct=True,
                 ),
                 pending_approval_count=Count(
                     "daily_tasks",
                     filter=Q(
                         daily_tasks__approval_status="pending",
+                        daily_tasks__task_date=today,
                     ),
                     distinct=True,
                 ),
-            )
-            .prefetch_related(
-                Prefetch(
-                    "daily_tasks",
-                    queryset=today_tasks,
-                    to_attr="today_tasks",
-                )
             )
             .distinct()
             .order_by("first_name", "username")
