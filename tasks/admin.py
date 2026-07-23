@@ -1,7 +1,9 @@
 from django.contrib import admin, messages
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Q
-from django.shortcuts import redirect
+from django.core.exceptions import PermissionDenied
+from django.db.models import Count, Prefetch, Q
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import path, reverse
 from django.utils.timezone import localdate
 from django.views.generic import TemplateView
@@ -266,17 +268,38 @@ class DailyTaskDashboard(UnfoldModelAdminViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        today = localdate()
+
+        today_tasks = (
+            DailyTask.objects.filter(task_date=today)
+            .select_related("brand")
+            .order_by("status", "title")
+        )
+
         users = (
             User.objects.filter(
                 groups__name="Daily Task Users",
                 is_active=True,
             )
             .annotate(
-                total_daily_tasks=Count("daily_tasks"),
+                total_daily_tasks=Count(
+                    "daily_tasks",
+                    distinct=True,
+                ),
                 pending_approval_count=Count(
                     "daily_tasks",
-                    filter=Q(daily_tasks__approval_status="pending"),
+                    filter=Q(
+                        daily_tasks__approval_status="pending",
+                    ),
+                    distinct=True,
                 ),
+            )
+            .prefetch_related(
+                Prefetch(
+                    "daily_tasks",
+                    queryset=today_tasks,
+                    to_attr="today_tasks",
+                )
             )
             .distinct()
             .order_by("first_name", "username")
@@ -286,15 +309,25 @@ class DailyTaskDashboard(UnfoldModelAdminViewMixin, TemplateView):
             {
                 "daily_task_users": users,
                 "daily_task_list_url": reverse("admin:tasks_dailytask_changelist"),
+                "today": today,
             }
         )
 
         return context
 
 
+@admin.register(Brand)
+class BrandAdmin(ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
+
+    class Media:
+        js = ("js/admin_row_click.js",)
+
+
 @admin.register(DailyTask)
 class DailyTaskAdmin(ModelAdmin):
-    # change_list_template = "tasks/daily_task_change_list.html"
+    change_list_template = "tasks/daily_task_change_list.html"
 
     list_display = (
         "task_date",
@@ -321,6 +354,7 @@ class DailyTaskAdmin(ModelAdmin):
     )
 
     readonly_fields = (
+        "task_date",
         "created_by",
         "created_at",
         "updated_at",
@@ -340,9 +374,106 @@ class DailyTaskAdmin(ModelAdmin):
                 ),
                 name="daily_task_dashboard",
             ),
+            path(
+                "quick-add/",
+                self.admin_site.admin_view(self.quick_add_daily_task),
+                name="tasks_dailytask_quick_add",
+            ),
         ]
 
         return custom_urls + super().get_urls()
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+
+        filtered_user_id = request.GET.get("user__id__exact")
+
+        filtered_user = None
+
+        if filtered_user_id:
+            filtered_user = User.objects.filter(
+                pk=filtered_user_id,
+                is_active=True,
+            ).first()
+
+        extra_context.update(
+            {
+                "filtered_user": filtered_user,
+                "filtered_user_id": filtered_user_id,
+                "daily_task_users": User.objects.filter(
+                    groups__name="Daily Task Users",
+                    is_active=True,
+                )
+                .distinct()
+                .order_by("first_name", "username"),
+                "brands": Brand.objects.all().order_by("name"),
+                "quick_add_url": reverse("admin:tasks_dailytask_quick_add"),
+            }
+        )
+
+        return super().changelist_view(
+            request,
+            extra_context=extra_context,
+        )
+
+    def quick_add_daily_task(self, request):
+        if not self.has_add_permission(request):
+            raise PermissionDenied
+
+        if request.method != "POST":
+            return HttpResponseRedirect(reverse("admin:tasks_dailytask_changelist"))
+
+        user_id = request.POST.get("user")
+        title = request.POST.get("title", "").strip()
+        description = request.POST.get("description", "").strip()
+        brand_id = request.POST.get("brand")
+        status = request.POST.get("status", "not_started")
+
+        redirect_url = reverse("admin:tasks_dailytask_changelist")
+
+        if user_id:
+            redirect_url = f"{redirect_url}?user__id__exact={user_id}"
+
+        if not user_id:
+            messages.error(request, "Please select a user.")
+            return HttpResponseRedirect(redirect_url)
+
+        if not title:
+            messages.error(request, "Task title is required.")
+            return HttpResponseRedirect(redirect_url)
+
+        task_user = get_object_or_404(
+            User,
+            pk=user_id,
+            is_active=True,
+        )
+
+        brand = None
+
+        if brand_id:
+            brand = Brand.objects.filter(pk=brand_id).first()
+
+        valid_statuses = {value for value, label in DailyTask.STATUS}
+
+        if status not in valid_statuses:
+            status = "not_started"
+
+        daily_task = DailyTask.objects.create(
+            user=task_user,
+            title=title,
+            brand=brand,
+            description=description,
+            status=status,
+            approval_status="pending",
+            created_by=request.user,
+        )
+
+        messages.success(
+            request,
+            f'Daily task "{daily_task.title}" assigned successfully.',
+        )
+
+        return HttpResponseRedirect(redirect_url)
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -350,7 +481,6 @@ class DailyTaskAdmin(ModelAdmin):
         if request.user.is_superuser:
             return queryset
 
-        # Managers can see all records if they have change permission.
         if request.user.has_perm("tasks.change_dailytask"):
             return queryset
 
@@ -370,12 +500,3 @@ class DailyTaskAdmin(ModelAdmin):
                 list_display.remove("user")
 
         return tuple(list_display)
-
-
-@admin.register(Brand)
-class BrandAdmin(ModelAdmin):
-    list_display = ("name",)
-    search_fields = ("name",)
-
-    class Media:
-        js = ("js/admin_row_click.js",)
