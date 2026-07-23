@@ -3,7 +3,8 @@ from django.urls import reverse_lazy
 
 def group_permission(*group_names):
     """
-    Allow access to superusers or users belonging to any supplied group.
+    Allow access to authenticated superusers or users belonging
+    to any of the supplied groups.
     """
 
     def check(request):
@@ -60,10 +61,6 @@ can_view_subscriptions = group_permission(
 )
 
 
-# ---------------------------------------------------------------------
-# Unfold configuration
-# ---------------------------------------------------------------------
-
 UNFOLD = {
     "DASHBOARD_CALLBACK": "dashboard.views.dashboard_callback",
     "SITE_TITLE": "Internal Application - The Deep Seafood",
@@ -75,7 +72,7 @@ UNFOLD = {
         "show_search": True,
         "navigation": [
             {
-                "title": "Navigation",
+                "title": "Main",
                 "items": [
                     {
                         "title": "Dashboard",
@@ -83,17 +80,82 @@ UNFOLD = {
                         "link": reverse_lazy("admin:index"),
                     },
                     {
-                        "title": "Support Tickets",
-                        "icon": "confirmation_number",
-                        "link": reverse_lazy("admin:tickets_supportticket_changelist"),
-                        "permission": can_view_support_tickets,
-                    },
-                    {
                         "title": "Credentials",
                         "icon": "key",
                         "link": reverse_lazy("admin:credentials_credential_changelist"),
                         "permission": can_view_credentials,
                     },
+                ],
+            },
+            {
+                "title": "Task Management",
+                "collapsible": True,
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Projects",
+                        "icon": "folder",
+                        "link": reverse_lazy("admin:tasks_dashboard"),
+                        "permission": can_view_tasks,
+                    },
+                    {
+                        "title": "Daily Tasks",
+                        "icon": "event_note",
+                        "link": reverse_lazy("admin:daily_task_dashboard"),
+                        "permission": can_view_daily_tasks,
+                    },
+                    {
+                        "title": "Brands",
+                        "icon": "sell",
+                        "link": reverse_lazy("admin:tasks_brand_changelist"),
+                        "permission": can_view_tasks,
+                    },
+                    {
+                        "title": "Task Categories",
+                        "icon": "category",
+                        "link": reverse_lazy("admin:tasks_taskcategory_changelist"),
+                        "permission": can_view_tasks,
+                    },
+                ],
+            },
+            {
+                "title": "Support Tickets",
+                "collapsible": True,
+                "separator": True,
+                "items": [
+                    {
+                        "title": "All Tickets",
+                        "icon": "confirmation_number",
+                        "link": reverse_lazy("admin:tickets_supportticket_changelist"),
+                        "permission": can_view_support_tickets,
+                    },
+                    {
+                        "title": "Ticket History",
+                        "icon": "history",
+                        "link": reverse_lazy(
+                            "admin:tickets_supporttickethistory_changelist"
+                        ),
+                        "permission": can_view_support_tickets,
+                    },
+                    {
+                        "title": "Ticket Routings",
+                        "icon": "route",
+                        "link": reverse_lazy("admin:tickets_ticketrouting_changelist"),
+                        "permission": can_view_support_tickets,
+                    },
+                    {
+                        "title": "Ticket Statuses",
+                        "icon": "flag",
+                        "link": reverse_lazy("admin:tickets_ticketstatus_changelist"),
+                        "permission": can_view_support_tickets,
+                    },
+                ],
+            },
+            {
+                "title": "Subscription Management",
+                "collapsible": True,
+                "separator": True,
+                "items": [
                     {
                         "title": "Subscriptions",
                         "icon": "subscriptions",
@@ -102,30 +164,27 @@ UNFOLD = {
                         ),
                         "permission": can_view_subscriptions,
                     },
-                ],
-            },
-            {
-                "title": "Tasks Management",
-                "collapsible": True,
-                "separator": True,
-                "items": [
                     {
-                        "title": "Projects",
-                        "icon": "analytics",
-                        "link": reverse_lazy("admin:tasks_dashboard"),
-                        "permission": can_view_tasks,
+                        "title": "Payment Cards",
+                        "icon": "credit_card",
+                        "link": reverse_lazy(
+                            "admin:subscriptions_paymentcard_changelist"
+                        ),
+                        "permission": can_view_subscriptions,
                     },
                     {
-                        "title": "Daily Tasks",
-                        "icon": "calendar_today",
-                        "link": reverse_lazy("admin:daily_task_dashboard"),
-                        "permission": can_view_daily_tasks,
+                        "title": "Currencies",
+                        "icon": "currency_exchange",
+                        "link": reverse_lazy("admin:subscriptions_currency_changelist"),
+                        "permission": can_view_subscriptions,
                     },
                     {
-                        "title": "Brands",
-                        "icon": "label",
-                        "link": reverse_lazy("admin:tasks_brand_changelist"),
-                        "permission": can_view_tasks,
+                        "title": "Payment Timings",
+                        "icon": "schedule",
+                        "link": reverse_lazy(
+                            "admin:subscriptions_paymenttiming_changelist"
+                        ),
+                        "permission": can_view_subscriptions,
                     },
                 ],
             },
@@ -144,7 +203,7 @@ UNFOLD = {
                     },
                     {
                         "title": "Domain Registrars",
-                        "icon": "dns",
+                        "icon": "business",
                         "link": reverse_lazy(
                             "admin:web_management_registrar_changelist"
                         ),
@@ -160,7 +219,7 @@ UNFOLD = {
                     },
                     {
                         "title": "DNS Zones",
-                        "icon": "article",
+                        "icon": "dns",
                         "link": reverse_lazy("admin:web_management_dnszone_changelist"),
                         "permission": can_view_web_management,
                     },
@@ -178,8 +237,8 @@ UNFOLD = {
                         "permission": can_manage_users,
                     },
                     {
-                        "title": "Groups & Permissions",
-                        "icon": "group",
+                        "title": "Groups and Permissions",
+                        "icon": "admin_panel_settings",
                         "link": reverse_lazy("admin:auth_group_changelist"),
                         "permission": can_manage_groups,
                     },
