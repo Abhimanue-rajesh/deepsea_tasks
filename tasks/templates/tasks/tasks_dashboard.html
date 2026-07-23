@@ -13,10 +13,16 @@
                 <h1 class="text-2xl font-semibold text-font-important-light dark:text-font-important-dark">Task Dashboard</h1>
                 <p class="mt-1 text-sm text-font-subtle-light dark:text-font-subtle-dark">Select a project to view its tasks.</p>
             </div>
-            <a href="{{ task_list_url }}"
-               class="rounded-default bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700">
-                View All Tasks
-            </a>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'admin:tasks_project_add' %}"
+                   class="rounded-default bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700">
+                    Create Project
+                </a>
+                <a href="{{ task_list_url }}"
+                   class="rounded-default bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700">
+                    View All Tasks
+                </a>
+            </div>
         </div>
         <div class="overflow-hidden rounded-default border border-base-200 bg-white dark:border-base-800 dark:bg-base-900">
             <div class="border-b border-base-200 px-6 py-4 dark:border-base-800">
